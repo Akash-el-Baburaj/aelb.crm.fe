@@ -1,0 +1,179 @@
+<!-- Breadcrumb -->
+<div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
+    <h5 class="mb-0">
+        Users List
+    </h5>
+    <ol class="breadcrumb list-unstyled mt-0 mb-0 pl-0">
+        <li class="breadcrumb-item position-relative">
+            <a routerLink="/" class="d-inline-block position-relative">
+                <i class="ri-home-8-line"></i>
+                Dashboard
+            </a>
+        </li>
+        <li class="breadcrumb-item position-relative">
+            Users
+        </li>
+        <li class="breadcrumb-item position-relative">
+            Users List
+        </li>
+    </ol>
+</div>
+
+<!-- Users -->
+<mat-card
+    class="daxa-card users-card mb-25 border-radius bg-white border-none d-block"
+    [class.rtl-enabled]="themeService.isRTLEnabled()"
+>
+    <mat-card-header>
+        <mat-card-title>
+            <form class="search-box position-relative">
+                <i class="material-symbols-outlined">
+                    search
+                </i>
+                <input type="text" class="input-search d-block w-100 border-none outline-0" placeholder="Search user..." (keyup)="applyFilter($event)" #input>
+            </form>
+        </mat-card-title>
+        <mat-card-subtitle>
+            <a mat-button class="add-new-btn" routerLink="/users/add-user">
+                + Add New User
+            </a>
+        </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        <div class="users-table">
+            <div class="table-responsive">
+                <table mat-table [dataSource]="dataSource">
+
+                    <!-- User ID Column -->
+                    <ng-container matColumnDef="userID">
+                        <th mat-header-cell *matHeaderCellDef>
+                            User ID
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            {{element.userID}}
+                        </td>
+                    </ng-container>
+
+                    <!-- User Column -->
+                    <ng-container matColumnDef="user">
+                        <th mat-header-cell *matHeaderCellDef>
+                            User
+                        </th>
+                        <td mat-cell *matCellDef="let element" class="text-black">
+                            <div class="info d-flex align-items-center">
+                                <div class="image">
+                                    <img [src]="element.user.image" alt="user-image" onerror="this.src='images/users/user12.jpg';">
+                                </div>
+                                <span class="d-block fw-medium">
+                                    {{element.user.name}}
+                                </span>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Email Column -->
+                    <ng-container matColumnDef="email">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Email
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            {{element.email}}
+                        </td>
+                    </ng-container>
+
+                    <!-- Location Column -->
+                    <ng-container matColumnDef="location">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Location
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            {{element.location}}
+                        </td>
+                    </ng-container>
+
+                    <!-- Phone Column -->
+                    <ng-container matColumnDef="phone">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Phone
+                        </th>
+                        <td mat-cell *matCellDef="let element" class="text-black">
+                            {{element.phone}}
+                        </td>
+                    </ng-container>
+
+                    <!-- Projects Column -->
+                    <ng-container matColumnDef="projects">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Task
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            {{element.projects}}
+                        </td>
+                    </ng-container>
+
+                    <!-- Join Date Column -->
+                    <ng-container matColumnDef="joinDate">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Join Date
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            {{element.joinDate | date: 'dd MMMM yyyy'}}
+                        </td>
+                    </ng-container>
+
+                    <!-- Action Column -->
+                    <ng-container matColumnDef="action">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Action
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            <div class="action-info">
+                                <!-- <button type="button" mat-button matTooltip="View" matTooltipPosition="above">
+                                    <i class="material-symbols-outlined">
+                                        {{element.action.view}}
+                                    </i>
+                                </button> -->
+                                <a mat-button  matTooltip="Edit Lead" routerLink="/users/add-user" [queryParams]="{id: element.userID}" matTooltipPosition="above">
+                                    <i class="material-symbols-outlined">
+                                        {{element.action.edit}}
+                                    </i>
+                                </a>
+                                <a mat-button routerLink="/task/create-ticket" matTooltip="Create Task" matTooltipPosition="above">
+                                    <i class="material-symbols-outlined">
+                                        {{element.action.createTask}}
+                                    </i>
+                                </a>
+                                <button type="button" mat-button matTooltip="Delete" matTooltipPosition="above" (click)="openDeleteUser(element, confirmDialog)">
+                                    <i class="material-symbols-outlined">
+                                        {{element.action.delete}}
+                                    </i>
+                                </button>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    
+                    <!-- Row shown when there is no matching data. -->
+                    <tr class="mat-row" *matNoDataRow>
+                        <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
+                    </tr>
+
+                </table>
+            </div>
+            <mat-paginator [pageSizeOptions]="[10, 20, 30]" showFirstLastButtons></mat-paginator>
+        </div>
+    </mat-card-content>
+</mat-card>
+
+<ng-template #confirmDialog let-data>
+    <h2 mat-dialog-title>Confirm Delete</h2>
+    <mat-dialog-content>
+      Are you sure you want to delete <strong>{{ data.name }}</strong>?
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="closeModal()">Cancel</button>
+      <button mat-flat-button color="warn" (click)="deleteUser()">Delete</button>
+    </mat-dialog-actions>
+  </ng-template>
