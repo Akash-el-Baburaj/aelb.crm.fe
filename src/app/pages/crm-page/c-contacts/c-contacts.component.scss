@@ -255,3 +255,15 @@
 
 /* Min width 1600px */
 @media only screen and (min-width: 1600px) {}
+
+.option-flex {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.option-img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+}

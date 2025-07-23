@@ -1,0 +1,256 @@
+<!-- Breadcrumb -->
+<div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
+    <h5 class="mb-0">
+        Edit Product
+    </h5>
+    <ol class="breadcrumb list-unstyled mt-0 mb-0 pl-0">
+        <li class="breadcrumb-item position-relative">
+            <a routerLink="/" class="d-inline-block position-relative">
+                <i class="ri-home-8-line"></i>
+                Dashboard
+            </a>
+        </li>
+        <li class="breadcrumb-item position-relative">
+            E-Commerce
+        </li>
+        <li class="breadcrumb-item position-relative">
+            Edit Product
+        </li>
+    </ol>
+</div>
+
+<!-- Edit Product -->
+<mat-card class="daxa-card edit-product-card mb-25 border-radius bg-white border-none d-block">
+    <mat-card-content>
+        <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h5 class="title mt-0">Edit Product</h5>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">Product Name <span class="text-danger">*</span></label>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Product Name</mat-label>
+                                    <input matInput formControlName="name" required>
+                                    <mat-error *ngIf="productForm.get('name')?.hasError('required') && productForm.get('name')?.touched">Name is required</mat-error>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">Amount <span class="text-danger">*</span></label>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Amount</mat-label>
+                                    <input matInput formControlName="amount" required>
+                                    <mat-error *ngIf="productForm.get('amount')?.hasError('required') && productForm.get('amount')?.touched">Amount is required</mat-error>
+                                    <mat-error *ngIf="productForm.get('amount')?.hasError('pattern') && productForm.get('amount')?.touched">Enter a valid number</mat-error>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">Product Description <span class="text-danger">*</span></label>
+                                <div class="NgxEditor__Wrapper">
+                                    <ng-container *ngIf="editor">
+                                        <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
+                                        <ngx-editor [editor]="editor" formControlName="details" required></ngx-editor>
+                                    </ng-container>
+                                </div>
+                                <mat-error *ngIf="productForm.get('details')?.hasError('required') && productForm.get('details')?.touched">Description is required</mat-error>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">Discount <span class="text-danger">*</span></label>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Discount</mat-label>
+                                    <input matInput formControlName="discount" required>
+                                    <mat-error *ngIf="productForm.get('discount')?.hasError('required') && productForm.get('discount')?.touched">Discount is required</mat-error>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">Tax Details <span class="text-danger">*</span></label>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Tax Details</mat-label>
+                                    <input matInput formControlName="taxDetails" required>
+                                    <mat-error *ngIf="productForm.get('taxDetails')?.hasError('required') && productForm.get('taxDetails')?.touched">Tax details are required</mat-error>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">Upload Product Image <span class="text-danger">*</span></label>
+                                <input type="file" (change)="onFileSelected($event)" accept="image/*" required>
+                                <img *ngIf="base64Image" [src]="base64Image" alt="Preview" style="max-width: 120px; margin-top: 10px;">
+                                <mat-error *ngIf="productForm.get('image')?.hasError('required') && productForm.get('image')?.touched">Image is required</mat-error>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">Status <span class="text-danger">*</span></label>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Status</mat-label>
+                                    <mat-select formControlName="status" required>
+                                        <mat-option value="active">Active</mat-option>
+                                        <mat-option value="inactive">Inactive</mat-option>
+                                    </mat-select>
+                                    <mat-error *ngIf="productForm.get('status')?.hasError('required') && productForm.get('status')?.touched">Status is required</mat-error>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="col-lg-4">
+                    <h5 class="title mt-0">
+                        Product Category & Tags
+                    </h5>
+                    <div class="row">
+                        <div class="col-sm-6 col-lg-12">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">
+                                    Category
+                                </label>
+                                <mat-form-field>
+                                    <mat-label>
+                                        Select
+                                    </mat-label>
+                                    <mat-select [(value)]="categorySelected">
+                                        <mat-option value="option1">
+                                            Watch
+                                        </mat-option>
+                                        <mat-option value="option2">
+                                            Mobile
+                                        </mat-option>
+                                        <mat-option value="option3">
+                                            Laptop
+                                        </mat-option>
+                                        <mat-option value="option4">
+                                            Headphone
+                                        </mat-option>
+                                        <mat-option value="option5">
+                                            Shoe
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-12">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">
+                                    Vendor
+                                </label>
+                                <mat-form-field>
+                                    <mat-label>
+                                        Select
+                                    </mat-label>
+                                    <mat-select [(value)]="vendorSelected">
+                                        <mat-option value="option1">
+                                            Dennis Matthews
+                                        </mat-option>
+                                        <mat-option value="option2">
+                                            Susan Rader
+                                        </mat-option>
+                                        <mat-option value="option3">
+                                            Douglas Harvey
+                                        </mat-option>
+                                        <mat-option value="option4">
+                                            John Valdez
+                                        </mat-option>
+                                        <mat-option value="option5">
+                                            Kathryn Turner
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-12">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">
+                                    Collection
+                                </label>
+                                <mat-form-field>
+                                    <mat-label>
+                                        Select
+                                    </mat-label>
+                                    <mat-select [(value)]="collectionSelected">
+                                        <mat-option value="option1">
+                                            Collection 1
+                                        </mat-option>
+                                        <mat-option value="option2">
+                                            Collection 2
+                                        </mat-option>
+                                        <mat-option value="option3">
+                                            Collection 3
+                                        </mat-option>
+                                        <mat-option value="option4">
+                                            Collection 4
+                                        </mat-option>
+                                        <mat-option value="option5">
+                                            Collection 5
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-12">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">
+                                    Tags
+                                </label>
+                                <mat-form-field>
+                                    <mat-label>
+                                        Select
+                                    </mat-label>
+                                    <mat-select multiple>
+                                        <mat-option value="option1">Watch</mat-option>
+                                        <mat-option value="option2">Electronics</mat-option>
+                                        <mat-option value="option3">Sports</mat-option>
+                                        <mat-option value="option4">Fashion</mat-option>
+                                        <mat-option value="option5">Electronics</mat-option>
+                                        <mat-option value="option6">Jewellery</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+                    <h5 class="title mt-0">
+                        Other Option
+                    </h5>
+                    <div class="col-lg-12">
+                        <div class="mb-25">
+                            <label class="main-label d-block lh-1 text-black">
+                                Title
+                            </label>
+                            <mat-form-field>
+                                <mat-label>
+                                    Title
+                                </mat-label>
+                                <input matInput value="Hand Watch">
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="mb-25">
+                            <label class="main-label d-block lh-1 text-black">
+                                Description
+                            </label>
+                            <mat-form-field class="textarea">
+                                <mat-label>
+                                    Write here....
+                                </mat-label>
+                                <textarea matInput value="It makes me feel..."></textarea>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+            <div class="btn-box">
+                <button mat-flat-button color="primary" type="submit" [disabled]="productForm.invalid">Update Changes</button>
+                <button mat-button type="button" (click)="router.navigate(['/products'])">Cancel</button>
+            </div>
+        </form>
+    </mat-card-content>
+</mat-card>

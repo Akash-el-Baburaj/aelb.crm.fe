@@ -22,12 +22,13 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class UsersListComponent implements OnInit {
 
-    displayedColumns: string[] = ['userID', 'user', 'email', 'location', 'phone', 'projects', 'joinDate', 'action'];
+    displayedColumns: string[] = ['userID', 'user', 'email', 'location', 'phone', 'role', 'joinDate', 'status','action'];
     dataSource = new MatTableDataSource<PeriodicElement>([]);
     selection = new SelectionModel<PeriodicElement>(true, []);
     userList: any[] = [];
 
     editingUserId: number | null = null;
+    passwordVisibility: { [userID: string]: boolean } = {};
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -48,6 +49,18 @@ export class UsersListComponent implements OnInit {
         private toast: ToastrService,
     ) {}
     ngOnInit(): void {
+        // Check if logged-in user is super admin
+        const profile = localStorage.getItem('profile');
+        let isSuperAdmin = false;
+        if (profile) {
+            try {
+                const user = JSON.parse(profile);
+                isSuperAdmin = user.role === 'superadmin';
+            } catch {}
+        }
+        if (isSuperAdmin && !this.displayedColumns.includes('password')) {
+            this.displayedColumns.splice(7, 0, 'password'); // Insert password before joinDate
+        }
         this.getUsers();
     }
 
@@ -55,10 +68,10 @@ export class UsersListComponent implements OnInit {
         this.userService.getUsers().subscribe({
           next: (res: any) => {
             if (res.status === 'success') {
-              this.userList = res.data;
+              this.userList = res.users;
       
               // Map API data to PeriodicElement[]
-              const tableData: PeriodicElement[] = res.data.map((user: any) => ({
+              const tableData: PeriodicElement[] = res.users.map((user: any) => ({
                 userID: user.id?.toString() ?? '',
                 user: {
                   name: user.name,
@@ -67,8 +80,11 @@ export class UsersListComponent implements OnInit {
                 email: user.email,
                 location: user.designation ?? '-',
                 phone: user.phone ?? '-',
-                projects: user.tasks?.length || 0,
-                joinDate: user.created_at,
+                role: user.role ?? '-',
+                password: user.password ?? '',
+                // projects: user.tasks?.length || 0,
+                joinDate: user.createdDate,
+                status: user.status,
                 action:{
                     view: 'visibility',
                     edit: 'edit',
@@ -90,27 +106,41 @@ export class UsersListComponent implements OnInit {
       }
     
       openDeleteUser(user: any, confirmDialog: TemplateRef<any>) {
-        this.editingUserId = user.id;
-        this.dialog.open(confirmDialog, {
-          data: user,
-          width: '350px'
-        });
+        if (user.role !== 'superadmin') {
+          this.editingUserId = user.userID;
+          this.dialog.open(confirmDialog, {
+            data: user,
+            width: '350px'
+          });
+        } else this.toast.warning(`You can't delete super admin`, 'Warning!')
      
       }
     
       deleteUser(){
-        this.userService.deleteUser(Number(this.editingUserId)).subscribe({
-          next: (res: any) => {
-            if (res.success) {
-              this.toast.success(res.message, 'Success');
-              this.getUsers();
-              this.editingUserId = null;
+        const localProfile = JSON.parse(localStorage.getItem('profile') || '{}');
+
+        if (Number(localProfile.id) !== Number(this.editingUserId)) {
+          this.userService.deleteUser(Number(this.editingUserId)).subscribe({
+            next: (res: any) => {
+              if (res.status === "success") {
+                this.toast.success(res.message, 'Success');
+                this.getUsers();
+                this.editingUserId = null;
+                this.closeModal();
+              } else this.toast.error(res.message, 'Error')
+            },
+            error: (err) => {
+              this.toast.error(err.error.message, 'Error')
               this.closeModal();
-            } else this.toast.error(res.message, 'Error')
-          }
-        })
+            }
+          })
+        } else this.toast.warning(`You can't delete your account`, 'Warning')
+
       }
       
+      togglePasswordVisibility(userID: string) {
+        this.passwordVisibility[userID] = !this.passwordVisibility[userID];
+      }
 
 }
 
@@ -121,7 +151,9 @@ export interface PeriodicElement {
     email: string;
     location: string;
     phone: string;
-    projects: number;
+    role: any;
+    password?: string;
     joinDate: string;
+    status: string;
     action: any;
 }

@@ -50,7 +50,7 @@
                             User ID
                         </th>
                         <td mat-cell *matCellDef="let element">
-                            {{element.userID}}
+                            #ACUS-R{{element.userID}}
                         </td>
                     </ng-container>
 
@@ -84,10 +84,10 @@
                     <!-- Location Column -->
                     <ng-container matColumnDef="location">
                         <th mat-header-cell *matHeaderCellDef>
-                            Location
+                            Designation
                         </th>
                         <td mat-cell *matCellDef="let element">
-                            {{element.location}}
+                            {{element.location | titlecase}}
                         </td>
                     </ng-container>
 
@@ -102,14 +102,24 @@
                     </ng-container>
 
                     <!-- Projects Column -->
-                    <ng-container matColumnDef="projects">
+                    <ng-container matColumnDef="role">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Role
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            {{element.role | titlecase}}
+                        </td>
+                    </ng-container>
+
+                    <!-- Projects Column -->
+                    <!-- <ng-container matColumnDef="projects">
                         <th mat-header-cell *matHeaderCellDef>
                             Task
                         </th>
                         <td mat-cell *matCellDef="let element">
                             {{element.projects}}
                         </td>
-                    </ng-container>
+                    </ng-container> -->
 
                     <!-- Join Date Column -->
                     <ng-container matColumnDef="joinDate">
@@ -118,6 +128,35 @@
                         </th>
                         <td mat-cell *matCellDef="let element">
                             {{element.joinDate | date: 'dd MMMM yyyy'}}
+                        </td>
+                    </ng-container>
+
+                    <!-- Status Column -->
+                    <ng-container matColumnDef="status">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Status
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            <span class="daxa-badge active d-inline-block" *ngIf="element.status === 'active'">
+                                {{element.status | titlecase}}
+                            </span>
+                            <span class="daxa-badge deactive d-inline-block" *ngIf="element.status !== 'active'">
+                                {{element.status}}
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <!-- Password Column (visible only for super admin) -->
+                    <ng-container *ngIf="displayedColumns.includes('password')" matColumnDef="password">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Password
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            <span *ngIf="!passwordVisibility[element.userID]">********</span>
+                            <span *ngIf="passwordVisibility[element.userID]">{{element.password}}</span>
+                            <button mat-icon-button type="button" (click)="togglePasswordVisibility(element.userID)" [attr.aria-label]="passwordVisibility[element.userID] ? 'Hide password' : 'Show password'" matTooltip="Toggle Password Visibility">
+                                <i class="material-symbols-outlined" style="font-size: 14px;">{{ passwordVisibility[element.userID] ? 'visibility_off' : 'visibility' }}</i>
+                            </button>
                         </td>
                     </ng-container>
 

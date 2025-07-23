@@ -1,7 +1,7 @@
 <!-- Breadcrumb -->
 <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
     <h5 class="mb-0">
-        Student Details
+        Edit Customer
     </h5>
     <ol class="breadcrumb list-unstyled mt-0 mb-0 pl-0">
         <li class="breadcrumb-item position-relative">
@@ -14,173 +14,132 @@
             CRM
         </li>
         <li class="breadcrumb-item position-relative">
-            Edit Student
+            Edit Customer
         </li>
     </ol>
 </div>
 
-<!-- Edit Contact -->
+<!-- Edit Customer -->
 <mat-card class="daxa-card edit-contact-card mb-25 border-radius bg-white border-none d-block">
     <mat-card-content>
-        <form>
+        <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
             <div class="row">
                 <div class="col-md-4 col-sm-6">
                     <div class="mb-25">
-                        <label class="main-label d-block lh-1 text-black">
-                            Student ID
-                        </label>
-                        <mat-form-field>
-                            <mat-label>
-                                Enter student id
-                            </mat-label>
-                            <input matInput value="#ARP-1217">
+                        <label class="main-label d-block lh-1 text-black">Name <span class="text-danger">*</span></label>
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Enter customer name</mat-label>
+                            <input matInput formControlName="name" required>
                         </mat-form-field>
                     </div>
                 </div>
                 <div class="col-md-4 col-sm-6">
                     <div class="mb-25">
-                        <label class="main-label d-block lh-1 text-black">
-                            Student Name
-                        </label>
-                        <mat-form-field>
-                            <mat-label>
-                                Enter student name
-                            </mat-label>
-                            <input matInput value="Marcia Baker">
+                        <label class="main-label d-block lh-1 text-black">Email <span class="text-danger">*</span></label>
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Enter email address</mat-label>
+                            <input matInput formControlName="email" required>
                         </mat-form-field>
                     </div>
                 </div>
                 <div class="col-md-4 col-sm-6">
                     <div class="mb-25">
-                        <label class="main-label d-block lh-1 text-black">
-                            Email Address
-                        </label>
-                        <mat-form-field>
-                            <mat-label>
-                                Enter email address
-                            </mat-label>
-                            <input matInput value="marcia@example.com">
+                        <label class="main-label d-block lh-1 text-black">Phone <span class="text-danger">*</span></label>
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Enter phone number</mat-label>
+                            <input matInput formControlName="phone" required>
                         </mat-form-field>
                     </div>
                 </div>
                 <div class="col-md-4 col-sm-6">
                     <div class="mb-25">
-                        <label class="main-label d-block lh-1 text-black">
-                            Phone Number
-                        </label>
-                        <mat-form-field>
-                            <mat-label>
-                                Enter phone number
-                            </mat-label>
-                            <input matInput value="+1 555-123-4567">
+                        <label class="main-label d-block lh-1 text-black">Company</label>
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Enter company</mat-label>
+                            <input matInput formControlName="company">
                         </mat-form-field>
                     </div>
                 </div>
                 <div class="col-md-4 col-sm-6">
                     <div class="mb-25">
-                        <label class="main-label d-block lh-1 text-black">
-                            Last Contacted Date
-                        </label>
-                        <mat-form-field>
-                            <mat-label>
-                                Enter last contacted date
-                            </mat-label>
-                            <input matInput value="Nov 10, 2024">
-                        </mat-form-field>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-6">
-                    <div class="mb-25">
-                        <label class="main-label d-block lh-1 text-black">
-                            Courses
-                        </label>
-                        <mat-form-field>
-                            <mat-label>
-                                Enter Course name
-                            </mat-label>
-                            <!-- <mat-form-field> -->
-                                <!-- <mat-label>
-                                    Select
-                                </mat-label> -->
-                                <mat-select multiple [(value)]="option">
-                                    <mat-option value="option1">
-                                        Course 1
-                                    </mat-option>
-                                    <mat-option value="option2">
-                                        Course 2
-                                    </mat-option>
-                                    <mat-option value="option3">
-                                        Course 3
-                                    </mat-option>
-                                    <mat-option value="option4">
-                                        Course 4
-                                    </mat-option>
-                                    <mat-option value="option5">
-                                        Course 5
-                                    </mat-option>
-                                </mat-select>
-                            <!-- </mat-form-field> -->
-                        </mat-form-field>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-6">
-                    <div class="mb-25">
-                        <label class="main-label d-block lh-1 text-black">
-                            Duration
-                        </label>
-                        <mat-form-field>
-                            <mat-label>
-                                Enter lead score
-                            </mat-label>
-                            <input matInput value="50">
-                        </mat-form-field>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-6">
-                    <div class="mb-25">
-                        <label class="main-label d-block lh-1 text-black">
-                            Student Status
-                        </label>
-                        <mat-form-field>
-                            <mat-label>
-                                Select contact status
-                            </mat-label>
-                            <mat-select [(value)]="contactStatusSelected">
-                                <mat-option value="option1">
-                                    Active
-                                </mat-option>
-                                <mat-option value="option2">
-                                    Deactive
-                                </mat-option>
+                        <label class="main-label d-block lh-1 text-black">Status <span class="text-danger">*</span></label>
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Select status</mat-label>
+                            <mat-select formControlName="status" required>
+                                <mat-option *ngFor="let s of statusOptions" [value]="s.value">{{s.label}}</mat-option>
                             </mat-select>
                         </mat-form-field>
                     </div>
                 </div>
-                <div class="col-md-12 col-sm-12">
+                <div class="col-md-4 col-sm-6">
                     <div class="mb-25">
-                        <label class="main-label d-block lh-1 text-black">
-                            Student Image
-                        </label>
-                        <file-upload class="file-uploader" [multiple]="multiple"></file-upload>
+                        <label class="main-label d-block lh-1 text-black">Product/Service Price <span class="text-danger">*</span></label>
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Enter price</mat-label>
+                            <input matInput type="number" formControlName="productOrServicePrice" required>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="mb-25">
+                        <label class="main-label d-block lh-1 text-black">Paid Amount <span class="text-danger">*</span></label>
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Enter paid amount</mat-label>
+                            <input matInput type="number" formControlName="paidAmount" required>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="mb-25">
+                        <label class="main-label d-block lh-1 text-black">Balance Amount <span class="text-danger">*</span></label>
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Enter balance amount</mat-label>
+                            <input matInput type="number" formControlName="balanceAmount" required>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="mb-25">
+                        <label class="main-label d-block lh-1 text-black">EMI Count</label>
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Enter EMI count</mat-label>
+                            <input matInput type="number" formControlName="EMICount">
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="mb-25">
+                        <label class="main-label d-block lh-1 text-black">Next EMI Payment Date</label>
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Select next EMI payment date</mat-label>
+                            <input matInput [matDatepicker]="picker" formControlName="nextEMIPaymentDate">
+                            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                            <mat-datepicker #picker></mat-datepicker>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="mb-25">
+                        <label class="main-label d-block lh-1 text-black">Next EMI Amount</label>
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Enter next EMI amount</mat-label>
+                            <input matInput type="number" formControlName="nextEMIAmount">
+                        </mat-form-field>
                     </div>
                 </div>
                 <div class="col-md-12 col-sm-12">
                     <div class="mb-25">
-                        <label class="main-label d-block lh-1 text-black">
-                            About
-                        </label>
-                        <div class="NgxEditor__Wrapper">
-                            <ng-container *ngIf="editor">
-                                <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
-                                <ngx-editor [editor]="editor"></ngx-editor>
-                            </ng-container>
+                        <label class="main-label d-block lh-1 text-black">Customer Image</label>
+                        <input type="file" (change)="onFileChange($event)" accept="image/*">
+                        <div *ngIf="imageBase64" class="mt-2">
+                            <img [src]="imageBase64" alt="Customer Image" style="max-width: 120px; max-height: 120px; border-radius: 8px;">
                         </div>
-                    </div> 
+                    </div>
                 </div>
             </div>
             <div class="btn-box">
-                <button mat-button>
-                    Save Changes
+                <button mat-raised-button color="primary" type="submit" [disabled]="loading || customerForm.invalid">
+                    {{ loading ? 'Saving...' : 'Save Changes' }}
                 </button>
             </div>
         </form>

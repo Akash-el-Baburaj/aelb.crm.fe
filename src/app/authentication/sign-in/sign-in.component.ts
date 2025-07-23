@@ -45,17 +45,11 @@ export class SignInComponent {
             const data = this.authForm.value;
             this.authService.login(data).subscribe({
                 next: (res: any) => {
-                    console.log(res)
                     if (res.status === 'success') {
-                        localStorage.setItem('token', res.data.token)
-                        localStorage.setItem('role', res.data.user.role)
-                        localStorage.setItem('userId',res.data.user.id )
-                        this.userId = res.data.user.id;
+                        localStorage.setItem('token', res.token)
+                        localStorage.setItem('role', res.role)
                         this.toast.success(res.message, 'Success')
-                        // if (res.data.user.role !== 'superadmin') {
-                            this.getUserProfile(this.userId);
-                        // }
-                        
+                        this.getUserProfile();                        
                         this.router.navigate(['/']);
                     } else {
                         this.toast.error(res.message, 'Error')
@@ -73,11 +67,11 @@ export class SignInComponent {
         }
     }
 
-    getUserProfile(id: any) {
-        this.userService.getUserById(id).subscribe({
+    getUserProfile() {
+        this.userService.getUserProfile().subscribe({
             next: (res: any) => {
                 if (res.status === 'success') {
-                    this.userProfile = res.data;
+                    this.userProfile = res.user;
                     localStorage.setItem('profile', JSON.stringify(this.userProfile))
                 }
             }

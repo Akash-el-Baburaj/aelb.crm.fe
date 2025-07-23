@@ -1,5 +1,5 @@
-import { NgIf } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { CommonModule, NgIf } from '@angular/common';
+import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
@@ -15,20 +15,26 @@ import { MatIconModule } from '@angular/material/icon';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CustomerService } from '../../services/customer.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'app-contacts',
-    imports: [MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, NgIf, MatCheckboxModule, MatTooltipModule, MatFormFieldModule, MatIconModule, ReactiveFormsModule, MatInputModule],
+    imports: [CommonModule, MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, NgIf, MatCheckboxModule, MatTooltipModule, MatFormFieldModule, MatIconModule, ReactiveFormsModule, MatInputModule, MatDialogModule],
     templateUrl: './contacts.component.html',
     styleUrl: './contacts.component.scss'
 })
-export class ContactsComponent {
+export class ContactsComponent implements OnInit {
 
     displayedColumns: string[] = ['select', 'contactID', 'customer', 'email', 'phone', 'lastContacted', 'course', 'leadSource', 'paidAmount', 'balanceAmount', 'status', 'action'];
-    dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
-    selection = new SelectionModel<PeriodicElement>(true, []);
+    dataSource = new MatTableDataSource<CustomerElement>([]);
+    selection = new SelectionModel<CustomerElement>(true, []);
+    customers: any[] = [];
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
+    @ViewChild('deleteDialog') deleteDialog!: TemplateRef<any>;
+    customerId: any;
 
     ngAfterViewInit() {
         this.dataSource.paginator = this.paginator;
@@ -51,11 +57,11 @@ export class ContactsComponent {
     }
 
     /** The label for the checkbox on the passed row */
-    checkboxLabel(row?: PeriodicElement): string {
+    checkboxLabel(row?: CustomerElement): string {
         if (!row) {
             return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
         }
-        return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.customer + 1}`;
+        return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.customer.name + 1}`;
     }
 
     // Search Filter
@@ -66,8 +72,62 @@ export class ContactsComponent {
 
     constructor(
         public themeService: CustomizerSettingsService,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        private customerService: CustomerService,
+        private dialog: MatDialog,
+        private toast: ToastrService
     ) {}
+
+    ngOnInit(): void {
+        this.getCustomers();
+    }
+
+    getCustomers() {
+        this.customerService.getAllCustomers().subscribe({
+            next: (res: any) => {
+                if (res.status === 'success') {
+                    this.customers = res.customers;
+                    this.mapCustomerData();
+                }
+            },
+            error: (err) => {
+                console.error('Failed to fetch customers:', err);
+                this.snackBar.open('Failed to fetch customers', 'Close', { 
+                    duration: 3000,
+                    horizontalPosition: 'center',
+                    verticalPosition: 'top'
+                });
+            }
+        });
+    }
+
+    mapCustomerData() {
+        const mappedData: CustomerElement[] = this.customers.map((customer: any, index: number) => ({
+            contactID: customer.id || `CUST${String(index + 1).padStart(3, '0')}`,
+            customer: {
+                name: customer.name || 'N/A',
+                img: customer.image || 'assets/images/avatar/default-avatar.png'
+            },
+            email: customer.email || 'N/A',
+            phone: customer.phone || 'N/A',
+            lastContacted: customer.lastContacted || 'N/A',
+            course: customer.company || 'N/A',
+            leadSource: customer.leadSource || 'N/A',
+            paidAmount: customer.paidAmount || 0,
+            balanceAmount: customer.balanceAmount || 0,
+            status: {
+                active: customer.status === 'active' ? 'Active' : null,
+                deactive: customer.status === 'inactive' ? 'Inactive' : null
+            },
+            action: {
+                edit: 'edit',
+                link: 'link',
+                delete: 'delete'
+            }
+        }));
+        
+        this.dataSource.data = mappedData;
+    }
 
     classApplied = false;
     toggleClass() {
@@ -85,502 +145,55 @@ export class ContactsComponent {
 
     }
 
+    openDeleteDialog(customerId: string,confirmDialog: any) {
+        this.dialog.open(confirmDialog, { width: '350px' });
+        this.customerId = customerId
+    }
+
+    deleteCustomer() {
+        this.customerService.deleteCustomer(this.customerId).subscribe({
+            next: (res: any) => {
+                if (res.status === 'success') {
+                    this.toast.success(res.message, 'Success!')
+                    this.getCustomers();
+                    this.closeModal();
+                } else {
+                    this.toast.error(res.message, 'Error!')
+                }
+            },
+            error: (err) => {
+                console.error('Failed to delete customer:', err);
+                this.toast.error(err.error.message, 'Error!')
+            }
+        });
+    }
+
+    closeModal() {
+        this.dialog.closeAll();
+    }
+
 }
 
-const ELEMENT_DATA: PeriodicElement[] = [
-    {
-        contactID: '#ARP-1217',
-        customer: {
-            img: 'images/users/user15.jpg',
-            name: 'Marcia Baker'
-        },
-        email: 'marcia@example.com',
-        phone: '+1 555-123-4567',
-        lastContacted: 'Nov 10, 2024',
-        course: 'ABC Corporation',
-        leadSource: 'Meta',
-        paidAmount: 50,
-        balanceAmount: 25,
-        status: {
-            active: 'Active',
-            // deactive: 'Deactive',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            link: 'link',
-            delete: 'delete'
-        }
-    },
-    {
-        contactID: '#ARP-1364',
-        customer: {
-            img: 'images/users/user7.jpg',
-            name: 'Carolyn Barnes'
-        },
-        email: 'barnes@example.com',
-        phone: '+1 555-987-6543',
-        lastContacted: 'Nov 11, 2024',
-        course: 'XYZ Ltd',
-        leadSource: 'Meta',
-        paidAmount: 50,
-        balanceAmount: 25,
-        status: {
-            active: 'Active',
-            // deactive: 'Deactive',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            link: 'link',
-            delete: 'delete'
-        }
-    },
-    {
-        contactID: '#ARP-2951',
-        customer: {
-            img: 'images/users/user12.jpg',
-            name: 'Donna Miller'
-        },
-        email: 'donna@example.com',
-        phone: '+1 555-456-7890',
-        lastContacted: 'Nov 12, 2024',
-        course: 'Tech Solutions',
-        leadSource: 'Meta',
-        paidAmount: 50,
-        balanceAmount: 25,
-        status: {
-            // active: 'Active',
-            deactive: 'Deactive',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            link: 'link',
-            delete: 'delete'
-        }
-    },
-    {
-        contactID: '#ARP-7342',
-        customer: {
-            img: 'images/users/user5.jpg',
-            name: 'Barbara Cross'
-        },
-        email: 'cross@example.com',
-        phone: '+1 555-369-7878',
-        lastContacted: 'Nov 13, 2024',
-        course: 'Global Solutions',
-        leadSource: 'Meta',
-        paidAmount: 50,
-        balanceAmount: 25,
-        status: {
-            active: 'Active',
-            // deactive: 'Deactive',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            link: 'link',
-            delete: 'delete'
-        }
-    },
-    {
-        contactID: '#ARP-4619',
-        customer: {
-            img: 'images/users/user16.jpg',
-            name: 'Rebecca Block'
-        },
-        email: 'block@example.com',
-        phone: '+1 555-658-4488',
-        lastContacted: 'Nov 14, 2024',
-        course: 'Acma Industries',
-        leadSource: 'Meta',
-        paidAmount: 50,
-        balanceAmount: 25,
-        status: {
-            // active: 'Active',
-            deactive: 'Deactive',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            link: 'link',
-            delete: 'delete'
-        }
-    },
-
-    // {
-    //     contactID: '#ARP-7346',
-    //     customer: {
-    //         img: 'images/users/user9.jpg',
-    //         name: 'Ramiro McCarty'
-    //     },
-    //     email: 'ramiro@example.com',
-    //     phone: '+1 555-558-9966',
-    //     lastContacted: 'Nov 15, 2024',
-    //     course: 'Synergy Ltd',
-    //     leadSource: 'Meta',
-    //     paidAmount: 50,
-    //     balanceAmount: 25,
-    //     status: {
-    //         active: 'Active',
-    //         // deactive: 'Deactive',
-    //     },
-    //     action: {
-    //         view: 'visibility',
-    //         edit: 'edit',
-    //         link: 'link',
-    //         delete: 'delete'
-    //     }
-    // },
-    // {
-    //     contactID: '#ARP-7612',
-    //     customer: {
-    //         img: 'images/users/user1.jpg',
-    //         name: 'Robert Fairweather'
-    //     },
-    //     email: 'robert@example.com',
-    //     phone: '+1 555-357-5888',
-    //     lastContacted: 'Nov 16, 2024',
-    //     course: 'Summit Solutions',
-    //     leadSource: 'Meta',
-    //     paidAmount: 50,
-    //     balanceAmount: 25,
-    //     status: {
-    //         active: 'Active',
-    //         // deactive: 'Deactive',
-    //     },
-    //     action: {
-    //         view: 'visibility',
-    //         edit: 'edit',
-    //         link: 'link',
-    //         delete: 'delete'
-    //     }
-    // },
-    // {
-    //     contactID: '#ARP-7642',
-    //     customer: {
-    //         img: 'images/users/user6.jpg',
-    //         name: 'Marcelino Haddock'
-    //     },
-    //     email: 'haddock@example.com',
-    //     phone: '+1 555-456-8877',
-    //     lastContacted: 'Nov 17, 2024',
-    //     course: 'Strategies Ltd',
-    //     leadSource: 'Meta',
-    //     paidAmount: 50,
-    //     balanceAmount: 25,
-    //     status: {
-    //         active: 'Active',
-    //         // deactive: 'Deactive',
-    //     },
-    //     action: {
-    //         view: 'visibility',
-    //         edit: 'edit',
-    //         link: 'link',
-    //         delete: 'delete'
-    //     }
-    // },
-    // {
-    //     contactID: '#ARP-4652',
-    //     customer: {
-    //         img: 'images/users/user13.jpg',
-    //         name: 'Thomas Wilson'
-    //     },
-    //     email: 'wildon@example.com',
-    //     phone: '+1 555-622-4488',
-    //     lastContacted: 'Nov 18, 2024',
-    //     course: 'Tech Enterprises',
-    //     leadSource: 'Meta',
-    //     paidAmount: 50,
-    //     balanceAmount: 25,
-    //     status: {
-    //         // active: 'Active',
-    //         deactive: 'Deactive',
-    //     },
-    //     action: {
-    //         view: 'visibility',
-    //         edit: 'edit',
-    //         link: 'link',
-    //         delete: 'delete'
-    //     }
-    // },
-    // {
-    //     contactID: '#ARP-7895',
-    //     customer: {
-    //         img: 'images/users/user14.jpg',
-    //         name: 'Nathaniel Hulsey'
-    //     },
-    //     email: 'hulsey@example.com',
-    //     phone: '+1 555-225-4488',
-    //     lastContacted: 'Nov 19, 2024',
-    //     course: 'Synetic Solutions',
-    //     leadSource: 'Meta',
-    //     paidAmount: 50,
-    //     balanceAmount: 25,
-    //     status: {
-    //         active: 'Active',
-    //         // deactive: 'Deactive',
-    //     },
-    //     action: {
-    //         view: 'visibility',
-    //         edit: 'edit',
-    //         link: 'link',
-    //         delete: 'delete'
-    //     }
-    // },
-    // {
-    //     contactID: '#ARP-7895',
-    //     customer: {
-    //         img: 'images/users/user14.jpg',
-    //         name: 'Nathaniel Hulsey'
-    //     },
-    //     email: 'hulsey@example.com',
-    //     phone: '+1 555-225-4488',
-    //     lastContacted: 'Nov 19, 2024',
-    //     course: 'Synetic Solutions',
-    //     leadSource: 'Meta',
-    //     paidAmount: 50,
-    //     balanceAmount: 25,
-    //     status: {
-    //         // active: 'Active',
-    //         deactive: 'Deactive',
-    //     },
-    //     action: {
-    //         view: 'visibility',
-    //         edit: 'edit',
-    //         link: 'link',
-    //         delete: 'delete'
-    //     }
-    // },
-    // {
-    //     contactID: '#ARP-4652',
-    //     customer: {
-    //         img: 'images/users/user13.jpg',
-    //         name: 'Thomas Wilson'
-    //     },
-    //     email: 'wildon@example.com',
-    //     phone: '+1 555-622-4488',
-    //     lastContacted: 'Nov 18, 2024',
-    //     course: 'Tech Enterprises',
-    //     leadSource: 'Meta',
-    //     paidAmount: 50,
-    //     balanceAmount: 25,
-    //     status: {
-    //         active: 'Active',
-    //         // deactive: 'Deactive',
-    //     },
-    //     action: {
-    //         view: 'visibility',
-    //         edit: 'edit',
-    //         link: 'link',
-    //         delete: 'delete'
-    //     }
-    // },
-    // {
-    //     contactID: '#ARP-7642',
-    //     customer: {
-    //         img: 'images/users/user6.jpg',
-    //         name: 'Marcelino Haddock'
-    //     },
-    //     email: 'haddock@example.com',
-    //     phone: '+1 555-456-8877',
-    //     lastContacted: 'Nov 17, 2024',
-    //     course: 'Strategies Ltd',
-    //     leadSource: 'Meta',
-    //     paidAmount: 50,
-    //     balanceAmount: 25,
-    //     status: {
-    //         active: 'Active',
-    //         // deactive: 'Deactive',
-    //     },
-    //     action: {
-    //         view: 'visibility',
-    //         edit: 'edit',
-    //         link: 'link',
-    //         delete: 'delete'
-    //     }
-    // },
-    // {
-    //     contactID: '#ARP-7612',
-    //     customer: {
-    //         img: 'images/users/user1.jpg',
-    //         name: 'Robert Fairweather'
-    //     },
-    //     email: 'robert@example.com',
-    //     phone: '+1 555-357-5888',
-    //     lastContacted: 'Nov 16, 2024',
-    //     course: 'Summit Solutions',
-    //     leadSource: 'Meta',
-    //     paidAmount: 50,
-    //     balanceAmount: 25,
-    //     status: {
-    //         // active: 'Active',
-    //         deactive: 'Deactive',
-    //     },
-    //     action: {
-    //         view: 'visibility',
-    //         edit: 'edit',
-    //         link: 'link',
-    //         delete: 'delete'
-    //     }
-    // },
-    // {
-    //     contactID: '#ARP-7346',
-    //     customer: {
-    //         img: 'images/users/user9.jpg',
-    //         name: 'Ramiro McCarty'
-    //     },
-    //     email: 'ramiro@example.com',
-    //     phone: '+1 555-558-9966',
-    //     lastContacted: 'Nov 15, 2024',
-    //     course: 'Synergy Ltd',
-    //     leadSource: 'Meta',
-    //     paidAmount: 50,
-    //     balanceAmount: 25,
-    //     status: {
-    //         active: 'Active',
-    //         // deactive: 'Deactive',
-    //     },
-    //     action: {
-    //         view: 'visibility',
-    //         edit: 'edit',
-    //         link: 'link',
-    //         delete: 'delete'
-    //     }
-    // },
-    // {
-    //     contactID: '#ARP-4619',
-    //     customer: {
-    //         img: 'images/users/user16.jpg',
-    //         name: 'Rebecca Block'
-    //     },
-    //     email: 'block@example.com',
-    //     phone: '+1 555-658-4488',
-    //     lastContacted: 'Nov 14, 2024',
-    //     course: 'Acma Industries',
-    //     leadSource: 'Meta',
-    //     paidAmount: 50,
-    //     balanceAmount: 25,
-    //     status: {
-    //         active: 'Active',
-    //         // deactive: 'Deactive',
-    //     },
-    //     action: {
-    //         view: 'visibility',
-    //         edit: 'edit',
-    //         link: 'link',
-    //         delete: 'delete'
-    //     }
-    // },
-    // {
-    //     contactID: '#ARP-7342',
-    //     customer: {
-    //         img: 'images/users/user5.jpg',
-    //         name: 'Barbara Cross'
-    //     },
-    //     email: 'cross@example.com',
-    //     phone: '+1 555-369-7878',
-    //     lastContacted: 'Nov 13, 2024',
-    //     course: 'Global Solutions',
-    //     leadSource: 'Meta',
-    //     paidAmount: 50,
-    //     balanceAmount: 25,
-    //     status: {
-    //         // active: 'Active',
-    //         deactive: 'Deactive',
-    //     },
-    //     action: {
-    //         view: 'visibility',
-    //         edit: 'edit',
-    //         link: 'link',
-    //         delete: 'delete'
-    //     }
-    // },
-    // {
-    //     contactID: '#ARP-2951',
-    //     customer: {
-    //         img: 'images/users/user12.jpg',
-    //         name: 'Donna Miller'
-    //     },
-    //     email: 'donna@example.com',
-    //     phone: '+1 555-456-7890',
-    //     lastContacted: 'Nov 12, 2024',
-    //     course: 'Tech Solutions',
-    //     leadSource: 'Meta',
-    //     paidAmount: 50,
-    //     balanceAmount: 25,
-    //     status: {
-    //         active: 'Active',
-    //         // deactive: 'Deactive',
-    //     },
-    //     action: {
-    //         view: 'visibility',
-    //         edit: 'edit',
-    //         link: 'link',
-    //         delete: 'delete'
-    //     }
-    // },
-    // {
-    //     contactID: '#ARP-1364',
-    //     customer: {
-    //         img: 'images/users/user7.jpg',
-    //         name: 'Carolyn Barnes'
-    //     },
-    //     email: 'barnes@example.com',
-    //     phone: '+1 555-987-6543',
-    //     lastContacted: 'Nov 11, 2024',
-    //     course: 'XYZ Ltd',
-    //     leadSource: 'Meta',
-    //     paidAmount: 50,
-    //     balanceAmount: 25,
-    //     status: {
-    //         active: 'Active',
-    //         // deactive: 'Deactive',
-    //     },
-    //     action: {
-    //         view: 'visibility',
-    //         edit: 'edit',
-    //         link: 'link',
-    //         delete: 'delete'
-    //     }
-    // },
-    // {
-    //     contactID: '#ARP-1217',
-    //     customer: {
-    //         img: 'images/users/user15.jpg',
-    //         name: 'Marcia Baker'
-    //     },
-    //     email: 'marcia@example.com',
-    //     phone: '+1 555-123-4567',
-    //     lastContacted: 'Nov 10, 2024',
-    //     course: 'ABC Corporation',
-    //     leadSource: 'Meta',
-    //     paidAmount: 50,
-    //     balanceAmount: 25,
-    //     status: {
-    //         active: 'Active',
-    //         // deactive: 'Deactive',
-    //     },
-    //     action: {
-    //         view: 'visibility',
-    //         edit: 'edit',
-    //         link: 'link',
-    //         delete: 'delete'
-    //     }
-    // }
-];
-
-export interface PeriodicElement {
+export interface CustomerElement {
     contactID: string;
-    customer: any;
+    customer: {
+        name: string;
+        img: string;
+    };
     email: string;
     phone: string;
     lastContacted: string;
     course: string;
     leadSource: string;
-    paidAmount: 50,
-    balanceAmount: 25,
-    status: any;
-    action: any;
+    paidAmount: number;
+    balanceAmount: number;
+    status: {
+        active?: string | null;
+        deactive?: string | null;
+    };
+    action: {
+        edit: string;
+        link: string;
+        delete: string;
+    };
 }

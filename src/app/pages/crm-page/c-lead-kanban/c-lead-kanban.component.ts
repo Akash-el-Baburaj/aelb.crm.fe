@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
     CdkDragDrop,
     CdkDrag,
@@ -19,633 +19,152 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatNativeDateModule } from '@angular/material/core';
 import { CustomizerSettingsService } from '../../../customizer-settings/customizer-settings.service';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FileUploadModule } from '@iplab/ngx-file-upload';
+import { LeadService } from '../../../services/lead.service';
+import { ToastrService } from 'ngx-toastr';
+import { ProductOrServiceService } from '../../../services/product-or-service.service';
 
 @Component({
   selector: 'app-c-lead-kanban',
-  imports: [RouterLink, MatCardModule, MatButtonModule, MatMenuModule, CdkDropList, CdkDrag, CdkDropListGroup, NgIf, MatSelectModule, MatInputModule, MatDatepickerModule, MatFormFieldModule, MatNativeDateModule, MatTooltipModule,ReactiveFormsModule, FormsModule, FileUploadModule],
+  imports: [RouterLink, MatCardModule, MatButtonModule, ReactiveFormsModule, FormsModule, MatMenuModule, CdkDropList, CdkDrag, CdkDropListGroup, NgIf, MatSelectModule, MatInputModule, MatDatepickerModule, MatFormFieldModule, MatNativeDateModule, MatTooltipModule,ReactiveFormsModule, FormsModule, FileUploadModule],
   templateUrl: './c-lead-kanban.component.html',
   styleUrl: './c-lead-kanban.component.scss'
 })
 export class CLeadKanbanComponent {
     public multiple: boolean = false;
+    open: any[] = [];
+    inProgress: any[] = [];
+    won: any[] = [];
+    lost: any[] = [];
+    classApplied = false;
+    leadForm!: FormGroup;
+    products: any[] = [];
+    base64Image: string | null = null;
 
-     // To Do
-     toDo : any = [
-        {
-            id: ' #ARP-1217',
-            customer: {
-                img: 'images/users/user15.jpg',
-                name: 'Marcia Baker'
-            },
-            email: 'marcia@example.com',
-            phone: '+1 555-123-4567',
-            img1: `images/users/user2.jpg`,
-            img2: `images/users/user4.jpg`,
-            img3: `images/users/user5.jpg`,  
-            daysLeft: '10 Days Left',
-            createDate: 'Nov 10, 2024',
-            company: 'ABC Corporation',
-            leadSource: 'Website',
-            status: {
-                new: 'New',
-                // won: 'Won',
-                // inProgress: 'In Progress',
-                // lost: 'Lost',
-            },
-            action: {
-                view: 'visibility',
-                edit: 'edit',
-                delete: 'delete'
-            }
-        },
-        {
-            id: '#FDA-1364',
-            customer: {
-                img: 'images/users/user7.jpg',
-                name: 'Carolyn Barnes'
-            },
-            email: 'barnes@example.com',
-            phone: '+1 555-987-6543',
-            img1: `images/users/user6.jpg`,
-            img2: `images/users/user7.jpg`,
-            img3: `images/users/user8.jpg`,  
-            daysLeft: '10 Days Left',
-            createDate: 'Nov 11, 2024',
-            company: 'XYZ Ltd',
-            leadSource: 'Referral',
-            status: {
-                // new: 'New',
-                won: 'Won',
-                // inProgress: 'In Progress',
-                // lost: 'Lost',
-            },
-            action: {
-                view: 'visibility',
-                edit: 'edit',
-                delete: 'delete'
-            }
-        },
-        {
-            id: '#DES-1364',
-            customer: {
-                img: 'images/users/user12.jpg',
-                name: 'Donna Miller'
-            },
-            email: 'donna@example.com',
-            phone: '+1 555-456-7890',
-            img1: `images/users/user9.jpg`,
-            img3: `images/users/user10.jpg`, 
-            daysLeft: '10 Days Left',
-            createDate: 'Nov 12, 2024',
-            company: 'Tech Solutions',
-            leadSource: 'Cold Call',
-            status: {
-                // new: 'New',
-                // won: 'Won',
-                inProgress: 'In Progress',
-                // lost: 'Lost',
-            },
-            action: {
-                view: 'visibility',
-                edit: 'edit',
-                delete: 'delete'
-            }
-        },
-        {
-            id: '#DCV-7342',
-            customer: {
-                img: 'images/users/user5.jpg',
-                name: 'Barbara Cross'
-            },
-            email: 'cross@example.com',
-            phone: '+1 555-369-7878',
-            img1: `images/users/user11.jpg`,         
-            daysLeft: '10 Days Left',
-            createDate: 'Nov 13, 2024',
-            company: 'Global Solutions',
-            leadSource: 'Email Campaign',
-            status: {
-                new: 'New',
-                // won: 'Won',
-                // inProgress: 'In Progress',
-                // lost: 'Lost',
-            },
-            action: {
-                view: 'visibility',
-                edit: 'edit',
-                delete: 'delete'
-            }
-        }
-  ];
+    @Output() dataChange = new EventEmitter<any>();
 
-  // In Progress
-  inProgress : any = [
-    {
-        id: '#ASW-4619',
-        customer: {
-            img: 'images/users/user16.jpg',
-            name: 'Rebecca Block'
-        },
-        email: 'block@example.com',
-        phone: '+1 555-658-4488',
-        img1: `images/users/user17.jpg`,
-        img2: `images/users/user16.jpg`, 
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 14, 2024',
-        company: 'Acma Industries',
-        leadSource: 'Online Store',
-        status: {
-            // new: 'New',
-            // won: 'Won',
-            // inProgress: 'In Progress',
-            lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
-    },
-    {
-        id: '#AFR-7346',
-        customer: {
-            img: 'images/users/user9.jpg',
-            name: 'Ramiro McCarty'
-        },
-        email: 'ramiro@example.com',
-        phone: '+1 555-558-9966',
-        img1: `images/users/user15.jpg`,
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 15, 2024',
-        company: 'Synergy Ltd',
-        leadSource: 'Website',
-        status: {
-            // new: 'New',
-            // won: 'Won',
-            inProgress: 'In Progress',
-            // lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
-    },
-    {
-        id: '#WSA-7612',
-        customer: {
-            img: 'images/users/user9.jpg',
-            name: 'Robert Fairweather'
-        },
-        email: 'robert@example.com',
-        phone: '+1 555-357-5888',
-        img1: `images/users/user14.jpg`,
-        img2: `images/users/user13.jpg`,
-        img3: `images/users/user12.jpg`,  
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 16, 2024',
-        company: 'Summit Solutions',
-        leadSource: 'Email Campaign',
-        status: {
-            new: 'New',
-            // won: 'Won',
-            // inProgress: 'In Progress',
-            // lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
-    },
-    {
-        id: '#AQD-7642',
-        customer: {
-            img: 'images/users/user6.jpg',
-            name: 'Marcelino Haddock'
-        },
-        email: 'haddock@example.com',
-        phone: '+1 555-456-8877',
-        img1: `images/users/user15.jpg`,
-        img2: `images/users/user17.jpg`,
-        img3: `images/users/user9.jpg`,
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 17, 2024',
-        company: 'Strategies Ltd',
-        leadSource: 'Cold Call',
-        status: {
-            new: 'New',
-            // won: 'Won',
-            // inProgress: 'In Progress',
-            // lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
-    },
-    {
-        id: '#TGS-4652',
-        customer: {
-            img: 'images/users/user13.jpg',
-            name: 'Thomas Wilson'
-        },
-        email: 'wildon@example.com',
-        phone: '+1 555-622-4488',
-        img1: `images/users/user7.jpg`,
-        img2: `images/users/user8.jpg`,
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 18, 2024',
-        company: 'Tech Enterprises',
-        leadSource: 'Referral',
-        status: {
-            // new: 'New',
-            won: 'Won',
-            // inProgress: 'In Progress',
-            // lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
-    },
-    {
-        id: '#EGC-7895',
-        customer: {
-            img: 'images/users/user14.jpg',
-            name: 'Nathaniel Hulsey'
-        },
-        email: 'hulsey@example.com',
-        phone: '+1 555-225-4488',
-        img1: `images/users/user5.jpg`,
-        img2: `images/users/user6.jpg`,
- 
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 19, 2024',
-        company: 'Synetic Solutions',
-        leadSource: 'Website',
-        status: {
-            // new: 'New',
-            // won: 'Won',
-            // inProgress: 'In Progress',
-            lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
-    },
-    {
-        id: '#DFR-7895',
-        customer: {
-            img: 'images/users/user14.jpg',
-            name: 'Nathaniel Hulsey'
-        },
-        email: 'hulsey@example.com',
-        phone: '+1 555-225-4488',
-        img1: `images/users/user2.jpg`,
-        img2: `images/users/user4.jpg`,        
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 19, 2024',
-        company: 'Synetic Solutions',
-        leadSource: 'Website',
-        status: {
-            // new: 'New',
-            // won: 'Won',
-            // inProgress: 'In Progress',
-            lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
+    constructor(
+        public themeService: CustomizerSettingsService,
+        private leadService: LeadService,
+        private toast: ToastrService,
+        private fb: FormBuilder,
+        public router: Router,
+        private productService: ProductOrServiceService,
+    ) {
+        this.leadForm = this.fb.group({
+            name: ['', Validators.required],
+            email: ['', [Validators.required, Validators.email]],
+            phone: [''],
+            company: [''],
+            leadSource: [''],
+            productOrServiceIds: [[], Validators.required],
+            image: ['']
+        });
     }
-  ];
 
-  // To Review
-  toReview : any = [
-    {
-        id: '#SQA-4652',
-        customer: {
-            img: 'images/users/user13.jpg',
-            name: 'Thomas Wilson'
-        },
-        email: 'wildon@example.com',
-        phone: '+1 555-622-4488',
-        img1: `images/users/user2.jpg`,
-        img2: `images/users/user4.jpg`,
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 18, 2024',
-        company: 'Tech Enterprises',
-        leadSource: 'Referral',
-        status: {
-            // new: 'New',
-            won: 'Won',
-            // inProgress: 'In Progress',
-            // lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
-    },
-    {
-        id: '#FBG-7642',
-        customer: {
-            img: 'images/users/user6.jpg',
-            name: 'Marcelino Haddock'
-        },
-        email: 'haddock@example.com',
-        phone: '+1 555-456-8877',
-        img1: `images/users/user5.jpg`,
-        img2: `images/users/user6.jpg`,
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 17, 2024',
-        company: 'Strategies Ltd',
-        leadSource: 'Cold Call',
-        status: {
-            new: 'New',
-            // won: 'Won',
-            // inProgress: 'In Progress',
-            // lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
-    },
-    {
-        id: '#RTF-7612',
-        customer: {
-            img: 'images/users/user1.jpg',
-            name: 'Robert Fairweather'
-        },
-        email: 'robert@example.com',
-        phone: '+1 555-357-5888',
-        img1: `images/users/user7.jpg`,
-        img2: `images/users/user8.jpg`,
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 16, 2024',
-        company: 'Summit Solutions',
-        leadSource: 'Email Campaign',
-        status: {
-            new: 'New',
-            // won: 'Won',
-            // inProgress: 'In Progress',
-            // lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
-    },
-    {
-        id: '#JHY-7346',
-        customer: {
-            img: 'images/users/user9.jpg',
-            name: 'Ramiro McCarty'
-        },
-        email: 'ramiro@example.com',
-        phone: '+1 555-558-9966',
-        img1: `images/users/user9.jpg`,
-        img2: `images/users/user10.jpg`,
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 15, 2024',
-        company: 'Synergy Ltd',
-        leadSource: 'Website',
-        status: {
-            // new: 'New',
-            // won: 'Won',
-            inProgress: 'In Progress',
-            // lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
-    },
-    {
-        id: '#IKG-4619',
-        customer: {
-            img: 'images/users/user16.jpg',
-            name: 'Rebecca Block'
-        },
-        email: 'block@example.com',
-        phone: '+1 555-658-4488',
-        img1: `images/users/user11.jpg`,
-        img2: `images/users/user12.jpg`,
-        img3: `images/users/user13.jpg`,
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 14, 2024',
-        company: 'Acma Industries',
-        leadSource: 'Online Store',
-        status: {
-            // new: 'New',
-            // won: 'Won',
-            // inProgress: 'In Progress',
-            lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
-    },
-    {
-        id: '#THB-7342',
-        customer: {
-            img: 'images/users/user5.jpg',
-            name: 'Barbara Cross'
-        },
-        email: 'cross@example.com',
-        phone: '+1 555-369-7878',
-        img1: `images/users/user14.jpg`,
-        img2: `images/users/user15.jpg`,
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 13, 2024',
-        company: 'Global Solutions',
-        leadSource: 'Email Campaign',
-        status: {
-            new: 'New',
-            // won: 'Won',
-            // inProgress: 'In Progress',
-            // lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
+    ngOnInit() {
+        this.fetchLeads();
+        this.productService.getAllProductsOrServices().subscribe(res => {
+            this.products = res.products || [];
+        });
     }
-  ];
 
-  // To Completed
-  toCompleted : any = [
-    {
-        id: '#IKG-4619',
-        customer: {
-            img: 'images/users/user16.jpg',
-            name: 'Rebecca Block'
-        },
-        email: 'block@example.com',
-        phone: '+1 555-658-4488',
-        img1: `images/users/user17.jpg`,
-        img2: `images/users/user16.jpg`,
-        img3: `images/users/user15.jpg`,
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 14, 2024',
-        company: 'Acma Industries',
-        leadSource: 'Online Store',
-        status: {
-            // new: 'New',
-            // won: 'Won',
-            // inProgress: 'In Progress',
-            lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
-    },
-    {
-        id: '#THB-7342',
-        customer: {
-            img: 'images/users/user5.jpg',
-            name: 'Barbara Cross'
-        },
-        email: 'cross@example.com',
-        phone: '+1 555-369-7878',
-        img1: `images/users/user14.jpg`,
-        img2: `images/users/user13.jpg`,
-        img3: `images/users/user12.jpg`,
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 13, 2024',
-        company: 'Global Solutions',
-        leadSource: 'Email Campaign',
-        status: {
-            new: 'New',
-            // won: 'Won',
-            // inProgress: 'In Progress',
-            // lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
-    },
-
-    {
-        id: '#NMK-1364',
-        customer: {
-            img: 'images/users/user12.jpg',
-            name: 'Donna Miller'
-        },
-        email: 'donna@example.com',
-        phone: '+1 555-456-7890',
-        img1: `images/users/user11.jpg`,
-        img2: `images/users/user10.jpg`,
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 12, 2024',
-        company: 'Tech Solutions',
-        leadSource: 'Cold Call',
-        status: {
-            // new: 'New',
-            // won: 'Won',
-            inProgress: 'In Progress',
-            // lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
-    },
-    {
-        id: '#PLO-1364',
-        customer: {
-            img: 'images/users/user7.jpg',
-            name: 'Carolyn Barnes'
-        },
-        email: 'barnes@example.com',
-        phone: '+1 555-987-6543',
-        img1: `images/users/user9.jpg`,
-        img2: `images/users/user8.jpg`,
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 11, 2024',
-        company: 'XYZ Ltd',
-        leadSource: 'Referral',
-        status: {
-            // new: 'New',
-            won: 'Won',
-            // inProgress: 'In Progress',
-            // lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
-    },
-    {
-        id: ' #UIK-1217',
-        customer: {
-            img: 'images/users/user15.jpg',
-            name: 'Marcia Baker'
-        },
-        email: 'marcia@example.com',
-        phone: '+1 555-123-4567',
-        img1: `images/users/user7.jpg`,
-        daysLeft: '10 Days Left',
-        createDate: 'Nov 10, 2024',
-        company: 'ABC Corporation',
-        leadSource: 'Website',
-        status: {
-            new: 'New',
-            // won: 'Won',
-            // inProgress: 'In Progress',
-            // lost: 'Lost',
-        },
-        action: {
-            view: 'visibility',
-            edit: 'edit',
-            delete: 'delete'
-        }
+    fetchLeads() {
+        this.leadService.getAllLeads().subscribe({
+            next: (res: any) => {
+                if (res && res.status === 'success') {
+                    this.open = res.leads.filter((l: any) => l.status === 'open');
+                    this.inProgress = res.leads.filter((l: any) => l.status === 'in progress');
+                    this.won = res.leads.filter((l: any) => l.status === 'won');
+                    this.lost = res.leads.filter((l: any) => l.status === 'lost');
+                }
+            },
+            error: (err) => {
+                console.error('Failed to fetch leads', err);
+                // Optionally show a toast if you have ToastrService injected:
+                // this.toast.error('Failed to fetch leads');
+            }
+        });
     }
-  ];
 
-  // Drag and Drop
-  drop(event: CdkDragDrop<string[]>) {
+    drop(event: CdkDragDrop<any[]>) {
       if (event.previousContainer === event.container) {
           moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
       } else {
+            const lead = event.previousContainer.data[event.previousIndex];
+            const fromStatus = this.getStatusByDropListId(event.previousContainer.id);
+            const toStatus = this.getStatusByDropListId(event.container.id);
           transferArrayItem(
               event.previousContainer.data,
               event.container.data,
               event.previousIndex,
               event.currentIndex,
           );
-      }
-  }
+            // You can show a toast or log the details
+            console.log(`Lead '${lead.name}' moved from '${fromStatus}' to '${toStatus}'`);
+            this.updateStatus(lead, toStatus)
+            // Optionally, show a toast:
+            // this.toast.info(`Lead '${lead.name}' moved from '${fromStatus}' to '${toStatus}'`);
+        }
+    }
 
-  // Popup Trigger
-  classApplied = false;
+    updateStatus(lead: any, status: string) {
+        const id = lead.id;
+        const payload = {
+            status: status
+        }
+        this.leadService.updateLead(id, payload).subscribe({
+            next: (res: any) => {
+                if (res.status === 'success') {
+                    this.toast.success(res.message, 'Success!');
+                    this.fetchLeads();
+                    this.dataChange.emit()
+                }
+            }
+        })
+    }
+
   toggleClass() {
       this.classApplied = !this.classApplied;
   }
 
-  constructor(
-      public themeService: CustomizerSettingsService
-  ) {}
+    getDropListId(status: string): string {
+        return `${status.replace(/\s+/g, '').toLowerCase()}DropList`;
+    }
+
+    getStatusByDropListId(dropListId: string): string {
+        if (dropListId.includes('open')) return 'open';
+        if (dropListId.includes('inprogress')) return 'in progress';
+        if (dropListId.includes('won')) return 'won';
+        if (dropListId.includes('lost')) return 'lost';
+        return '';
+    }
+
+    onFileSelected(event: Event) {
+        const input = event.target as HTMLInputElement;
+        if (input?.files && input.files.length > 0) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = () => {
+                this.base64Image = reader.result as string;
+                this.leadForm.patchValue({ image: this.base64Image });
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    onSubmit() {
+        if (this.leadForm.valid) {
+            this.leadService.createLead(this.leadForm.value).subscribe({
+                next: () => {
+                    this.toast.success('Lead created successfully');
+                    this.fetchLeads();
+                },
+                error: err => {
+                    this.toast.error(err?.error?.message || 'Failed to create lead');
+                }
+            });
+        }
+    }
 }

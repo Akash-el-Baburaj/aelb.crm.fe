@@ -191,7 +191,6 @@ ngOnDestroy(): void {
     // if (!this.isEdit && this.editingUserId === null) {
     //   description = toHTML(newUser?.description);
     // }
-    console.log('newUser => <=', newUser)
     const payload: any = {
       name: newUser.name,
       email: newUser.email,

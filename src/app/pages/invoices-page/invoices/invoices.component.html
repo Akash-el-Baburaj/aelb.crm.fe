@@ -61,19 +61,19 @@
               <!-- Payment ID Column -->
               <ng-container matColumnDef="paymentID">
                 <th mat-header-cell *matHeaderCellDef> Payment ID </th>
-                <td mat-cell *matCellDef="let element"> {{element.paymentID}} </td>
+                <td mat-cell *matCellDef="let element"> #ACPY-M{{element.paymentID}} </td>
               </ng-container>
       
               <!-- Student Column -->
-              <ng-container matColumnDef="student">
-                <th mat-header-cell *matHeaderCellDef> Student </th>
+              <ng-container matColumnDef="customer">
+                <th mat-header-cell *matHeaderCellDef> customer </th>
                 <td mat-cell *matCellDef="let element" class="text-black">
                   <div class="info d-flex align-items-center">
                     <div class="image">
-                      <img [src]="element.student.img" alt="student-image">
+                      <img [src]="element.customer.img" alt="customer-image">
                     </div>
                     <span class="d-block fw-medium">
-                      {{element.student.name}}
+                      {{element.customer.name}}
                     </span>
                   </div>
                 </td>
@@ -82,20 +82,31 @@
               <!-- Email Column -->
               <ng-container matColumnDef="email">
                 <th mat-header-cell *matHeaderCellDef> Email </th>
-                <td mat-cell *matCellDef="let element"> {{element.email}} </td>
+                <td mat-cell *matCellDef="let element">
+                  <i class="material-symbols-outlined" style="font-size: 18px;" [matTooltip]="element.email" matTooltipPosition="above">
+                    email
+                  </i>
+                   <!-- {{element.email}} -->
+                   </td>
               </ng-container>
-      
+
+              <!-- Phone Column -->
+              <ng-container matColumnDef="phone">
+                <th mat-header-cell *matHeaderCellDef> Phone </th>
+                <td mat-cell *matCellDef="let element"> {{element.phone}} </td>
+              </ng-container>
+              
               <!-- Course Name Column -->
-              <ng-container matColumnDef="courseName">
-                <th mat-header-cell *matHeaderCellDef> Course Name </th>
-                <td mat-cell *matCellDef="let element"> {{element.courseName}} </td>
+              <ng-container matColumnDef="productOrService">
+                <th mat-header-cell *matHeaderCellDef> Product Name </th>
+                <td mat-cell *matCellDef="let element"> {{element.productOrService}} </td>
               </ng-container>
       
               <!-- Course Fee Column -->
-              <ng-container matColumnDef="courseFee">
-                <th mat-header-cell *matHeaderCellDef> Course Fee </th>
+              <ng-container matColumnDef="totalAmount">
+                <th mat-header-cell *matHeaderCellDef> Amount </th>
                 <td mat-cell *matCellDef="let element">
-                   {{element.courseFee}} 
+                   {{element.totalAmount}} 
                     <button type="button" mat-button matTooltip="Installment" matTooltipPosition="above"
                             style="font-size: 8pxl !important;
                                   padding: 0;
@@ -126,15 +137,42 @@
               </ng-container>
       
               <!-- Installments Column -->
-              <ng-container matColumnDef="installments">
+              <ng-container matColumnDef="paymentEMIs">
                 <th mat-header-cell *matHeaderCellDef> Installments </th>
-                <td mat-cell *matCellDef="let element"> {{element.installments}} </td>
+                <td mat-cell *matCellDef="let element"> 
+                  {{element.paymentEMIs ? getPaidEmiCount(element.paymentEMIs) : element.installments.paidEmiCount}} / {{ element.paymentEMIs ? element.paymentEMIs.length : element.installments.emiCount }}
+                  <!-- {{ element.installments.paidEmiCount + ' / ' + element.installments.emiCount}}  -->
+                </td>
+              </ng-container>
+      
+              <!-- Next Installment Amount Column -->
+              <ng-container matColumnDef="nextEMIAmount">
+                <th mat-header-cell *matHeaderCellDef> Next EMI Amount </th>
+                <td mat-cell *matCellDef="let element"> 
+                  <span style="display: flex; align-items: center; justify-content: space-evenly;">
+                    <span>{{element.nextEMIAmount}} </span>
+                  <button type="button" mat-button matTooltip="Installment Pay" *ngIf="element.nextEMIAmount" matTooltipPosition="above"
+                            style="font-size: 8pxl !important;
+                                  padding: 0;
+                                  width: auto;
+                                  height: auto;
+                                  line-height: 1;
+                                  color: #0f79f3;
+                                  min-width: auto;
+                                  border-radius: 0;" 
+                            (click)="openNextInstallmentDialog(element)">
+                        <i class="material-symbols-outlined" style="font-size: 16px !important;">
+                            currency_rupee_circle
+                        </i>
+                    </button>
+                  </span>
+                </td>
               </ng-container>
       
               <!-- Next Installment Date Column -->
               <ng-container matColumnDef="nextInstallmentDate">
                 <th mat-header-cell *matHeaderCellDef> Next Installment </th>
-                <td mat-cell *matCellDef="let element"> {{element.nextInstallmentDate}} </td>
+                <td mat-cell *matCellDef="let element"> {{element.nextInstallmentDate | date: 'dd MMM yyyy'}} </td>
               </ng-container>
       
               <!-- Action Column -->
@@ -147,6 +185,12 @@
                         {{element.action.view}}
                       </i>
                     </a>
+                    <button type="button" mat-button matTooltip="Generate Invoice" matTooltipPosition="above"
+                            (click)="openGenerateInvoiceDialog(element)">
+                      <i class="material-symbols-outlined">
+                        {{element.action.invoice}}
+                      </i>
+                    </button>
                     <button type="button" mat-button matTooltip="Print" matTooltipPosition="above">
                       <i class="material-symbols-outlined">
                         {{element.action.print}}
@@ -179,7 +223,7 @@
 <ng-template #installmentDialog>
   <h2 mat-dialog-title>Convert to Installments</h2>
   <mat-dialog-content>
-    <p>Course Fee: ${{courseFee}}</p>
+    <p>Course Fee: ${{productOrServiceAmount}}</p>
     <!-- <mat-form-field>
       <mat-label>Number of Installments</mat-label>
       <input matInput type="number" [(ngModel)]="installmentCount" min="1">
@@ -206,12 +250,12 @@
           <p>Installment {{i + 1}}</p>
           <mat-form-field>
             <mat-label>Amount</mat-label>
-            <input matInput type="number" [(ngModel)]="inst.amount" (blur)="onAmountChange(i)">
+            <input matInput type="number" [(ngModel)]="inst.emiAmount" (blur)="onAmountChange(i)">
           </mat-form-field>
 
           <mat-form-field appearance="fill">
             <mat-label>Date</mat-label>
-            <input matInput [matDatepicker]="picker" [(ngModel)]="inst.date">
+            <input matInput [matDatepicker]="picker" [(ngModel)]="inst.emiDate">
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
           </mat-form-field>
@@ -225,3 +269,68 @@
   </mat-dialog-actions>
 </ng-template>
 
+<ng-template #generateInvoiceDialog let-data>
+  <h2 mat-dialog-title>Generate Invoice</h2>
+  <mat-dialog-content>
+    <div>
+      <mat-form-field appearance="fill" style="width: 100%;">
+        <mat-label>Invoice Amount</mat-label>
+        <input matInput type="number" [(ngModel)]="invoiceAmount">
+      </mat-form-field>
+    </div>
+    <div>
+      <mat-form-field appearance="fill" style="width: 100%;">
+        <mat-label>Discount</mat-label>
+        <input matInput type="number" [(ngModel)]="invoiceDiscount">
+      </mat-form-field>
+    </div>
+    <div>
+      <mat-form-field appearance="fill" style="width: 100%;">
+        <mat-label>Reduction</mat-label>
+        <input matInput type="number" [(ngModel)]="invoiceReduction">
+      </mat-form-field>
+    </div>
+    <div>
+      <strong>Final Amount: {{ invoiceAmount - (invoiceDiscount || 0) - (invoiceReduction || 0) | number:'1.2-2' }}</strong>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="closeModal()">Cancel</button>
+    <button mat-flat-button color="primary" (click)="submitGenerateInvoice()">Generate Invoice</button>
+  </mat-dialog-actions>
+</ng-template>
+
+<ng-template #installmentPaymentDialog>
+  <h2 mat-dialog-title>Installment Payment</h2>
+  <mat-dialog-content>
+    <p>
+      {{ getInstallmentLabel(currentInstallmentIndex ?? 0, selectedPayment?.installments?.emiCount || 1) }}<br>
+      <span style="display: flex; align-items: center; gap: 8px;">
+        <button mat-mini-fab color="primary" (click)="adjustEmiAmount(-100)">
+          <i class="material-symbols-outlined" style="font-size: 16px !important;">
+            remove_circle
+          </i>
+        </button>
+        
+        <input matInput type="number" [(ngModel)]="editEmiAmount" style="width: 100px; text-align: center;">
+        
+        <button mat-mini-fab color="primary" (click)="adjustEmiAmount(100)">
+          <i class="material-symbols-outlined" style="font-size: 16px !important;">
+            add_circle
+          </i>
+        </button>
+        
+        <span>Amount: &#8377;{{editEmiAmount}}</span>
+      </span>
+    </p>
+    <!-- <mat-form-field>
+      <mat-label>Number of Installments</mat-label>
+      <input matInput type="number" [(ngModel)]="installmentCount" min="1">
+    </mat-form-field>
+    <button mat-stroked-button color="primary" (click)="generateInstallments()">Generate</button> -->
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-flat-button (click)="closeModal()">Close</button>
+    <button mat-flat-button color="primary" (click)="payEmiAmount()">Save</button>
+  </mat-dialog-actions>
+</ng-template>

@@ -30,7 +30,7 @@
                 <i class="material-symbols-outlined">
                     search
                 </i>
-                <input type="text" class="input-search d-block w-100 border-none outline-0" placeholder="Search student..." (keyup)="applyFilter($event)" #input>
+                <input type="text" class="input-search d-block w-100 border-none outline-0" placeholder="Search customer..." (keyup)="applyFilter($event)" #input>
             </form>
         </mat-card-title>
         <mat-card-subtitle>
@@ -45,7 +45,7 @@
                     Active
                 </button>
                 <button mat-menu-item>
-                    Deactive
+                    Inactive
                 </button>
             </mat-menu>
         </mat-card-subtitle>
@@ -93,9 +93,9 @@
                             Customer
                         </th>
                         <td mat-cell *matCellDef="let element" class="text-black">
-                            <div class="info d-flex align-items-center" routerLink="/crm-page/profile"  routerLink="/crm-page/profile"  style="cursor: pointer;">
+                            <div class="info d-flex align-items-center" routerLink="/crm-page/profile" style="cursor: pointer;">
                                 <div class="image">
-                                    <img [src]="element.customer.img" alt="customer-image">
+                                    <img [src]="element.customer.img" alt="customer-image" onerror="this.src='assets/images/avatar/default-avatar.png'">
                                 </div>
                                 <span class="d-block fw-medium">
                                     {{element.customer.name}}
@@ -160,7 +160,7 @@
                             Paid Amount
                         </th>
                         <td mat-cell *matCellDef="let element">
-                            ${{element.paidAmount}}
+                            ${{element.paidAmount | number:'1.2-2'}}
                         </td>
                     </ng-container>
 
@@ -170,7 +170,7 @@
                             Balance
                         </th>
                         <td mat-cell *matCellDef="let element">
-                            ${{element.balanceAmount}}
+                            ${{element.balanceAmount | number:'1.2-2'}}
                         </td>
                     </ng-container>
 
@@ -196,22 +196,21 @@
                         </th>
                         <td mat-cell *matCellDef="let element">
                             <div class="action-info">
-                                <a mat-button routerLink="/edit-student" matTooltip="Edit Contact" matTooltipPosition="above">
+                                <!-- <a mat-button [routerLink]="['/edit-customer']" [queryParams]="{id: element.contactID}" matTooltip="Edit Customer" matTooltipPosition="above">
                                     <i class="material-symbols-outlined">
-                                        {{element.action.edit}}
+                                        edit
                                     </i>
-                                </a>
-                                <button type="button" mat-button matTooltip="Copy Link" matTooltipPosition="above" class="link-share-btn" (click)="toggleClass()">
+                                </a> -->
+                                <button type="button" mat-button matTooltip="Share Link" matTooltipPosition="above" class="link-share-btn" (click)="toggleClass()">
                                     <i class="material-symbols-outlined">
-                                        {{element.action.link}}
-                                    </i>
-                                </button>
-                                <button type="button" mat-button matTooltip="Delete" matTooltipPosition="above">
-                                    <i class="material-symbols-outlined">
-                                        {{element.action.delete}}
+                                        link
                                     </i>
                                 </button>
-
+                                <button type="button" mat-button matTooltip="Delete Customer" matTooltipPosition="above" (click)="openDeleteDialog(element.contactID, deleteDialog)">
+                                    <i class="material-symbols-outlined">
+                                        delete
+                                    </i>
+                                </button>
                             </div>
                         </td>
                     </ng-container>
@@ -221,7 +220,7 @@
     
                     <!-- Row shown when there is no matching data. -->
                     <tr class="mat-row" *matNoDataRow>
-                        <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
+                        <td class="mat-cell" colspan="12">No data matching the filter "{{input.value}}"</td>
                     </tr>
 
                 </table>
@@ -260,16 +259,7 @@
                     <div class="col-md-12 col-sm-12">
                         <div class="mb-25">
                             <div class="d-block">
-                                <span>Do you want to send the student details form link to the student via email?</span>
-                                <!-- <div class="copy-link-container">
-                                    <mat-form-field appearance="outline" class="copy-link-input">
-                                      <input matInput [value]="link" readonly #linkInput />
-                                    </mat-form-field>
-                                  
-                                    <button mat-raised-button color="primary" (click)="copyToClipboard(linkInput)">
-                                      <mat-icon>content_copy</mat-icon> Copy Link
-                                    </button>
-                                </div> -->
+                                <span>Do you want to send the customer details form link to the customer via email?</span>
                                 <mat-form-field appearance="outline" class="copy-link-field">
                                     <input matInput [value]="link" readonly #linkInput />
                                   
@@ -297,3 +287,15 @@
         </mat-card>
     </div>
 </div>
+
+<!-- Inline Delete Confirmation Dialog -->
+<ng-template #deleteDialog let-dialogRef>
+  <h2 mat-dialog-title>Confirm Delete</h2>
+  <mat-dialog-content>
+    Are you sure you want to delete this customer? This action cannot be undone.
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="closeModal()">Cancel</button>
+    <button mat-raised-button color="warn" (click)="deleteCustomer()">Delete</button>
+  </mat-dialog-actions>
+</ng-template>

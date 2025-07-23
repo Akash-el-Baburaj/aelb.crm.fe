@@ -1,7 +1,7 @@
 <!-- Breadcrumb -->
 <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
     <h5 class="mb-0">
-        Create Task
+        {{ isEdit ? 'Edit Task' : 'Create Task' }}
     </h5>
     <ol class="breadcrumb list-unstyled mt-0 mb-0 pl-0">
         <li class="breadcrumb-item position-relative">
@@ -13,422 +13,165 @@
         <li class="breadcrumb-item position-relative">
             Task
         </li>
-        <!-- <li class="breadcrumb-item position-relative">
-            Projects
-        </li> -->
         <li class="breadcrumb-item position-relative">
-            Create Task
+            {{ isEdit ? 'Edit Task' : 'Create Task' }}
         </li>
     </ol>
 </div>
 
-<!-- Create Project -->
-<mat-card
-    class="daxa-card create-project-card mb-25 border-radius bg-white border-none d-block"
-    [class.rtl-enabled]="themeService.isRTLEnabled()"
->
+<mat-card class="daxa-card create-project-card mb-25 border-radius bg-white border-none d-block" [class.rtl-enabled]="themeService.isRTLEnabled()">
     <mat-card-header>
         <mat-card-title>
             <h5 class="mb-0">
-                Create New Task
+                {{ isEdit ? 'Edit Task' : 'Create New Task' }}
             </h5>
         </mat-card-title>
     </mat-card-header>
     <mat-card-content>
-        <form>
+        <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
             <div class="row">
                 <div class="col-lg-8">
                     <div class="row">
                         <div class="col-sm-6">
                             <div class="mb-25">
-                                <label class="main-label d-block lh-1 text-black">
-                                    Task Title
-                                </label>
-                                <mat-form-field>
-                                    <mat-label>
-                                        Enter task title
-                                    </mat-label>
-                                    <input matInput placeholder="Enter task title">
+                                <label class="main-label d-block lh-1 text-black">Task Title <span class="text-danger">*</span></label>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Enter task title</mat-label>
+                                    <input matInput formControlName="taskTitle" required>
                                 </mat-form-field>
                             </div>
                         </div>
                         <div class="col-sm-6">
                             <div class="mb-25">
-                                <label class="main-label d-block lh-1 text-black">
-                                    Task Type
-                                </label>
-                                <mat-form-field>
-                                    <mat-label>
-                                        Select
-                                    </mat-label>
-                                    <mat-select>
-                                        <mat-option value="option1">
-                                            To-DO
-                                        </mat-option>
-                                        <mat-option value="option2">
-                                            Email
-                                        </mat-option>
-                                        <mat-option value="option3">
-                                            Call
-                                        </mat-option>
+                                <label class="main-label d-block lh-1 text-black">Team or Individual <span class="text-danger">*</span></label>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Select</mat-label>
+                                    <mat-select formControlName="teamOrIndividual" required>
+                                        <mat-option *ngFor="let opt of teamOrIndividualOptions" [value]="opt.value">{{opt.label}}</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">Status <span class="text-danger">*</span></label>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Select status</mat-label>
+                                    <mat-select formControlName="status" required>
+                                        <mat-option *ngFor="let s of statusOptions" [value]="s.value">{{s.label}}</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">Assigned User <span class="text-danger">*</span></label>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Select user</mat-label>
+                                    <mat-select formControlName="userId" required>
+                                        <mat-option *ngFor="let user of users" [value]="user.id">{{user.name || user.email}}</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">Team</label>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Select team</mat-label>
+                                    <mat-select formControlName="teamId">
+                                        <mat-option *ngFor="let team of teams" [value]="team.id">{{team.name}}</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">Contact</label>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Select contact</mat-label>
+                                    <mat-select formControlName="contactId">
+                                        <mat-option *ngFor="let contact of contacts" [value]="contact.id">{{contact.name || contact.email}}</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">Lead</label>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Select lead</mat-label>
+                                    <mat-select formControlName="leadId">
+                                        <mat-option *ngFor="let lead of leads" [value]="lead.id">{{lead.name}}</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="mb-25">
+                                <label class="main-label d-block lh-1 text-black">Customer</label>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Select customer</mat-label>
+                                    <mat-select formControlName="customerId">
+                                        <mat-option *ngFor="let customer of customers" [value]="customer.id">{{customer.name}}</mat-option>
                                     </mat-select>
                                 </mat-form-field>
                             </div>
                         </div>
                         <div class="col-sm-12">
                             <div class="mb-25">
-                                <label class="main-label d-block lh-1 text-black">
-                                    Contact
-                                </label>
-                                <mat-form-field>
-                                    <mat-label>
-                                        Select
-                                    </mat-label>
-                                    <mat-select>
-                                        @for (item of data; track item) {
-                                            <mat-option [value]="item.contact.name">
-                                                <div class="info d-flex align-items-center" routerLink="/crm-page/profile"  routerLink="/crm-page/profile"  style="cursor: pointer;">
-                                                    <div class="image team-members-list" style="margin-right: 5px !important;">
-                                                        <img [src]="item.contact.img" alt="contact-image">
-                                                    </div>
-                                                    <span class="d-block fw-medium">
-                                                        {{item.contact.name}}
-                                                    </span>
-                                                </div>
-                                                <!-- {{item.contact.name}} -->
-                                            </mat-option>
-                                        }
-                                        <!-- <mat-option value="option1">
-                                            Walter Frazier
-                                        </mat-option> -->
-                                        <!-- <mat-option value="option2">
-                                            Kimberly Anderson
-                                        </mat-option>
-                                        <mat-option value="option3">
-                                            Roscoe Guerrero
-                                        </mat-option>
-                                        <mat-option value="option4">
-                                            Robert Stewart
-                                        </mat-option>
-                                        <mat-option value="option4">
-                                            Dustin Fritch
-                                        </mat-option> -->
-                                    </mat-select>
+                                <label class="main-label d-block lh-1 text-black">Report</label>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Enter report</mat-label>
+                                    <textarea matInput formControlName="report" rows="3"></textarea>
                                 </mat-form-field>
                             </div>
-                            <!-- <div class="mb-25">
-                                <label class="main-label d-block lh-1 text-black">
-                                    End Date
-                                </label>
-                                <mat-form-field>
-                                    <mat-label>
-                                        Choose a date
-                                    </mat-label>
-                                    <input matInput [matDatepicker]="endDate">
-                                    <mat-datepicker-toggle matIconSuffix [for]="endDate"></mat-datepicker-toggle>
-                                    <mat-datepicker #endDate></mat-datepicker>
-                                </mat-form-field>
-                            </div> -->
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="mb-25">
-                                <label class="main-label d-block lh-1 text-black">
-                                    Priority
-                                </label>
-                                <mat-form-field>
-                                    <mat-label>
-                                        Select
-                                    </mat-label>
-                                    <mat-select>
-                                        <mat-option value="option1">
-                                            None
-                                        </mat-option>
-                                        <mat-option value="option2">
-                                            Low
-                                        </mat-option>
-                                        <mat-option value="option3">
-                                            Medium
-                                        </mat-option>
-                                        <mat-option value="option4">
-                                            High
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <!-- <div class="mb-25">
-                                <label class="main-label d-block lh-1 text-black">
-                                    Start Date
-                                </label>
-                                <mat-form-field>
-                                    <mat-label>
-                                        Choose a date
-                                    </mat-label>
-                                    <input matInput [matDatepicker]="startDate">
-                                    <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
-                                    <mat-datepicker #startDate></mat-datepicker>
-                                </mat-form-field>
-                            </div> -->
-                        </div>
-
-                        <div class="col-sm-6">
-                            <div class="mb-25">
-                                <label class="main-label d-block lh-1 text-black">
-                                    Assigned to
-                                </label>
-                                <mat-form-field>
-                                    <mat-label>
-                                        Select
-                                    </mat-label>
-                                    <mat-select>
-                                        <mat-option value="option1">
-                                            Walter Frazier
-                                        </mat-option>
-                                        <mat-option value="option2">
-                                            Kimberly Anderson
-                                        </mat-option>
-                                        <mat-option value="option3">
-                                            Roscoe Guerrero
-                                        </mat-option>
-                                        <mat-option value="option4">
-                                            Robert Stewart
-                                        </mat-option>
-                                        <mat-option value="option4">
-                                            Dustin Fritch
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <!-- <div class="mb-25">
-                                <label class="main-label d-block lh-1 text-black">
-                                    End Date
-                                </label>
-                                <mat-form-field>
-                                    <mat-label>
-                                        Choose a date
-                                    </mat-label>
-                                    <input matInput [matDatepicker]="endDate">
-                                    <mat-datepicker-toggle matIconSuffix [for]="endDate"></mat-datepicker-toggle>
-                                    <mat-datepicker #endDate></mat-datepicker>
-                                </mat-form-field>
-                            </div> -->
                         </div>
                         <div class="col-sm-12">
                             <div class="mb-25">
-                                <label class="main-label d-block lh-1 text-black">
-                                    Due date
-                                </label>
-                                <div class="row">
-                                    <div class="col-9">
-                                        <mat-form-field>
-                                            <mat-label>
-                                                Choose a date
-                                            </mat-label>
-                                            <input matInput [matDatepicker]="startDate">
-                                            <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
-                                            <mat-datepicker #startDate></mat-datepicker>
-                                        </mat-form-field>
-                                    </div>
-                                    <div class="col-3">
-                                        <mat-form-field appearance="fill">
-                                            <input matInput placeholder="12hr format" [ngxTimepicker]="picker">
-                                            <i class="material-symbols-outlined mr-15" matSuffix>
-                                                schedule
-                                            </i>
-                                            <ngx-material-timepicker #picker></ngx-material-timepicker>
-                                        </mat-form-field>
-                                    </div>
-                                </div>
-                            </div> 
-                            <!-- <div class="mb-25">
-                                <label class="main-label d-block lh-1 text-black">
-                                    Project Description
-                                </label>
-                                <div class="NgxEditor__Wrapper">
-                                    <ng-container *ngIf="editor">
-                                        <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
-                                        <ngx-editor [editor]="editor"></ngx-editor>
-                                    </ng-container>
-                                </div>
-                            </div> -->
+                                <label class="main-label d-block lh-1 text-black">Details</label>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Enter details</mat-label>
+                                    <textarea matInput formControlName="details" rows="3"></textarea>
+                                </mat-form-field>
+                            </div>
                         </div>
                         <div class="col-sm-12">
                             <div class="mb-25">
-                                <label class="main-label d-block lh-1 text-black">
-                                    Notes
-                                </label>
-                                <div class="NgxEditor__Wrapper">
-                                    <ng-container *ngIf="editor">
-                                        <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
-                                        <ngx-editor [editor]="editor"></ngx-editor>
-                                    </ng-container>
-                                </div>
-                            </div> 
-                        </div>
-                        <!-- <div class="col-sm-6">
-                            <div class="mb-25">
-                                <label class="main-label d-block lh-1 text-black">
-                                    Priority Status
-                                </label>
-                                <mat-form-field>
-                                    <mat-label>
-                                        Select
-                                    </mat-label>
-                                    <mat-select>
-                                        <mat-option value="option1">
-                                            In Progress
-                                        </mat-option>
-                                        <mat-option value="option2">
-                                            Pending
-                                        </mat-option>
-                                        <mat-option value="option3">
-                                            Completed
-                                        </mat-option>
-                                        <mat-option value="option4">
-                                            Not Started
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="mb-25">
-                                <label class="main-label d-block lh-1 text-black">
-                                    Categories
-                                </label>
-                                <mat-form-field>
-                                    <mat-label>
-                                        Select
-                                    </mat-label>
-                                    <mat-select>
-                                        <mat-option value="option1">
-                                            Watch
-                                        </mat-option>
-                                        <mat-option value="option2">
-                                            Electronics
-                                        </mat-option>
-                                        <mat-option value="option3">
-                                            Sports
-                                        </mat-option>
-                                        <mat-option value="option4">
-                                            Fashion
-                                        </mat-option>
-                                        <mat-option value="option5">
-                                            Jewellery
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="mb-25">
-                                <label class="main-label d-block lh-1 text-black">
-                                    Project Manager
-                                </label>
-                                <mat-form-field>
-                                    <mat-label>
-                                        Select
-                                    </mat-label>
-                                    <mat-select>
-                                        <mat-option value="option1">
-                                            Walter Frazier
-                                        </mat-option>
-                                        <mat-option value="option2">
-                                            Kimberly Anderson
-                                        </mat-option>
-                                        <mat-option value="option3">
-                                            Roscoe Guerrero
-                                        </mat-option>
-                                        <mat-option value="option4">
-                                            Robert Stewart
-                                        </mat-option>
-                                        <mat-option value="option4">
-                                            Dustin Fritch
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="mb-25">
-                                <label class="main-label d-block lh-1 text-black">
-                                    Add Team Members
-                                </label>
-                                <mat-form-field>
-                                    <mat-label>
-                                        Select
-                                    </mat-label>
-                                    <mat-select multiple>
-                                        <mat-option value="option1">
-                                            Walter Frazier
-                                        </mat-option>
-                                        <mat-option value="option2">
-                                            Kimberly Anderson
-                                        </mat-option>
-                                        <mat-option value="option3">
-                                            Roscoe Guerrero
-                                        </mat-option>
-                                        <mat-option value="option4">
-                                            Robert Stewart
-                                        </mat-option>
-                                        <mat-option value="option5">
-                                            Dustin Fritch
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="mb-25">
-                                <label class="main-label d-block lh-1 text-black">
-                                    Project Tags
-                                </label>
-                                <mat-form-field>
-                                    <mat-label>
-                                        Select
-                                    </mat-label>
-                                    <mat-select multiple>
-                                        <mat-option value="option1">
-                                            Watch
-                                        </mat-option>
-                                        <mat-option value="option2">
-                                            Electronics
-                                        </mat-option>
-                                        <mat-option value="option3">
-                                            Sports
-                                        </mat-option>
-                                        <mat-option value="option4">
-                                            Fashion
-                                        </mat-option>
-                                        <mat-option value="option5">
-                                            Jewellery
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                        </div> -->
+                                <label class="main-label d-block lh-1 text-black">Task Image</label>
+                                <input type="file" (change)="onFileChange($event)" accept="image/*">
+                                <div *ngIf="imageBase64" class="mt-2">
+                                    <img [src]="imageBase64" alt="Task Image" style="max-width: 120px; max-height: 120px; border-radius: 8px;">
                     </div>
                 </div>
-                <div class="col-lg-4">
-                    <div class="mb-25">
-                        <label class="main-label d-block lh-1 text-black">
-                            Task Image
-                        </label>
-                        <file-upload class="file-uploader" [multiple]="multiple"></file-upload>
                     </div>
-                    <div class="mb-25">
-                        <label class="main-label d-block lh-1 text-black">
-                            Attached Files
-                        </label>
-                        <file-upload class="file-uploader" [multiple]="multiple"></file-upload>
                     </div>
                 </div>
             </div>
+
+            <!-- File Upload -->
+            <div class="mb-25">
+              <label class="main-label d-block lh-1 text-black">Attach Files</label>
+              <input type="file" (change)="onFilesSelected($event)" multiple>
+              <button mat-raised-button color="primary" (click)="uploadTaskFiles()" [disabled]="!selectedFiles?.length || uploading">
+                {{ uploading ? 'Uploading...' : 'Upload Files' }}
+              </button>
+            </div>
+
+            <!-- File List -->
+            <div *ngIf="taskFiles?.length">
+              <h6>Task Files</h6>
+              <ul>
+                <li *ngFor="let file of taskFiles">
+                  <a [href]="file.filepath" target="_blank">{{ file.filename }}</a>
+                  <span *ngIf="file.User"> — {{ file.User.name }} ({{ file.User.email }})</span>
+                </li>
+              </ul>
+            </div>
+
             <div class="btn-box">
-                <button mat-button>
-                    + Create Task
-                </button>
-                <button mat-button>
-                    Cancel
+                <button mat-raised-button color="primary" type="submit" [disabled]="loading || taskForm.invalid">
+                    {{ loading ? (isEdit ? 'Updating...' : 'Saving...') : (isEdit ? 'Update Task' : 'Create Task') }}
                 </button>
             </div>
         </form>

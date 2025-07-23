@@ -66,6 +66,11 @@ import { AddUserComponent } from './pages/users-page/add-user/add-user.component
 import { PmTeamsComponent } from './pages/users-page/pm-teams/pm-teams.component';
 import { TeamMembersComponent } from './pages/users-page/team-members/team-members.component';
 import { ProjectManagementComponent } from './pages/project-management/project-management.component';
+import { ProductOrServiceComponent } from './pages/product-or-service/product-or-service.component';
+import { EProductsListComponent } from './pages/product-or-service/e-products-list/e-products-list.component';
+import { EProductDetailsComponent } from './pages/product-or-service/e-product-details/e-product-details.component';
+import { ECreateProductComponent } from './pages/product-or-service/e-create-product/e-create-product.component';
+import { EEditProductComponent } from './pages/product-or-service/e-edit-product/e-edit-product.component';
 // import { HdReportsComponent } from './pages/hd-reports/hd-reports.component';
 
 export const routes: Routes = [
@@ -73,7 +78,6 @@ export const routes: Routes = [
     {path: 'crm', component: CrmComponent},
     {path: 'report', component: HdReportsComponent},
     {path: 'team-report', component: ProjectManagementComponent},
-    // {path: 'lms', component: LmsComponent},
     // {path: 'help-desk', component: HelpDeskComponent},
     {
         path: 'users', 
@@ -93,10 +97,21 @@ export const routes: Routes = [
         ]
     },
 
+    {
+        path: 'products',
+        component: ProductOrServiceComponent,
+        children: [
+            {path: '', component: EProductsListComponent},
+            {path: 'product-details', component: EProductDetailsComponent},
+            {path: 'create-product', component: ECreateProductComponent},
+            {path: 'edit-product', component: EEditProductComponent},
+        ]
+    },
+
     {path: 'to-do-list', component: ToDoListComponent},
     {path: 'calendar', component: CalendarComponent},
     {path: 'customer', component: ContactsComponent},
-    {path: 'edit-student', component: EditContactComponent},
+    {path: 'edit-customer', component: EditContactComponent},
     {path: 'chat', component: ChatComponent},
     {path: 'kanban-board', component: KanbanBoardComponent},
     {
@@ -140,6 +155,7 @@ export const routes: Routes = [
             {path: 'create-ticket', component: HdCreateTicketComponent}
         ]
     },
+    
     {
         path: 'payments',
         component: InvoicesPageComponent,

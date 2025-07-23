@@ -1,7 +1,7 @@
 <!-- Breadcrumb -->
 <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
     <h5 class="mb-0">
-        Tasks Details
+        {{taskDetails?.taskTitle || 'Tasks Details'}}
     </h5>
     <ol class="breadcrumb list-unstyled mt-0 mb-0 pl-0">
         <li class="breadcrumb-item position-relative">
@@ -24,13 +24,90 @@
 
 <!-- Ticket Details -->
 <div class="row">
-    <div class="col-lg-4">
+    <div class="col-lg-3">
 
         <!-- Agent Info -->
-        <app-agent-info />
+        <!-- <app-agent-info /> -->
+        <mat-card
+        class="daxa-card agent-info-card mb-25 border-radius bg-white border-none d-block"
+        [class.component-dark-theme]="themeService.isDark()"
+        [class.rtl-enabled]="themeService.isRTLEnabled()"
+    >
+        <mat-card-content>
+            <div class="text-center">
+                <img [src]="taskDetails?.Contact.image"  onerror="this.src='images/users/user12.jpg'"  width="160" class="rounded-cricle" alt="customer-image">
+                <h4>{{taskDetails?.Contact.name}}</h4>
+                <span class="d-block text-body">
+                    {{taskDetails?.Contact.email}}
+                </span>
+            </div>
+            <div class="info">
+                <h5>
+                    <!-- Agent Info -->
+                </h5>
+                <ul class="pl-0 mb-0 list-unstyled mt-0">
+                    <!-- <li class="text-body">
+                        <span class="d-block text-black fw-medium">
+                            Task Title
+                        </span>
+                        {{taskDetails?.taskTitle}}
+                    </li> -->
+                    <li class="text-body">
+                        <span class="d-block text-black fw-medium">
+                            Account ID
+                        </span>
+                        #ACTS-K{{taskDetails?.Contact.id}}
+                    </li>
+                    <li class="text-body">
+                        <span class="d-block text-black fw-medium">
+                            Phone
+                        </span>
+                        {{taskDetails?.Contact.phone}}
+                    </li>
+                    <li class="text-body">
+                        <span class="d-block text-black fw-medium">
+                            Created Date
+                        </span>
+                        {{taskDetails?.createdDate | date: 'dd MMM yyyy'}}
+                    </li>
+                    <li class="text-body">
+                        <span class="d-block text-black fw-medium">
+                            Priority
+                        </span>
+                        <mat-form-field appearance="fill" class="small-form-field">
+                            <mat-label>Status</mat-label>
+                            <mat-select [(ngModel)]="priority" (selectionChange)="onPriorityChange($event)">
+                              <mat-option value="low">Low</mat-option>
+                              <mat-option value="medium">Medium</mat-option>
+                              <mat-option value="high">High</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </li>
+                    <li class="text-body">
+                        <span class="d-block text-black fw-medium">
+                            Status
+                        </span>
+                        <mat-form-field appearance="fill" class="small-form-field">
+                            <mat-label>Status</mat-label>
+                            <mat-select [(ngModel)]="status" (selectionChange)="onStatusChange($event)"> 
+                              <mat-option value="open">Open</mat-option>
+                              <mat-option value="assign">Assign</mat-option>
+                              <mat-option value="in progress">In Progress</mat-option>
+                              <mat-option value="waiting for review">Waiting For Review</mat-option>
+                              <mat-option value="waiting for customer response">Waiting For Customer Response</mat-option>
+                              <mat-option value="success">Success</mat-option>
+                              <mat-option value="failed">Failed</mat-option>
+                              <mat-option value="blocked">Blocked</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </li>
+                </ul>
+            </div>
+        </mat-card-content>
+    </mat-card>
 
     </div>
-    <div class="col-lg-8">
+    <div class="col-lg-6">
         <mat-card
             class="daxa-card ticket-details-card mb-25 border-radius bg-white border-none d-block"
             [class.component-dark-theme]="themeService.isDark()"
@@ -44,13 +121,18 @@
                 </mat-card-title>
                 <mat-card-subtitle>
                     <div class="buttons-list">
-                        <button mat-button>
+                        <button mat-button (click)="triggerFileInput()">
                             <i class="material-symbols-outlined">
-                                block
+                                file_upload
                             </i>
-                            Ban Visitor
+                            Upload
                         </button>
-                        <button mat-button>
+                        <input #fileInput type="file"
+                               style="display: none"
+                               (change)="onFileSelected($event)"
+                               accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,image/*"
+                               multiple>
+                        <!-- <button mat-button>
                             <i class="text-primary material-symbols-outlined">
                                 content_copy
                             </i>
@@ -67,86 +149,56 @@
                                 delete
                             </i>
                             Delete
-                        </button>
+                        </button> -->
                     </div>
                 </mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
                 <div class="chat-header d-flex align-items-center">
                     <div class="image">
-                        <img src="images/users/user12.jpg" alt="user-image">
+                        <img [src]=" userProfile?.image|| 'images/users/user12.jpg'" onerror="this.src='images/users/user12.jpg'"  alt="user-image">
                     </div>
                     <div class="title">
                         <span class="d-block fw-medium">
-                            Ann Cohen
+                            {{userProfile?.name}}
                         </span>
                         <span class="d-block text-body">
-                            anncohen&#64;example.com
+                            {{userProfile?.name}}
                         </span>
                     </div>
                 </div>
                 <div class="chat-body">
                     <ul class="list-unstyled mb-0 mt-0">
-                        <li class="position-relative">
-                            <img src="images/users/user12.jpg" width="35" class="rounded-circle user" alt="user">
-                            <div class="message">
-                                <div>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pharetra ligula non varius curabitur etiam malesuada. Congue eget luctus aliquet consectetur.</p>
+                        <ng-container *ngFor="let group of getGroupedLogs(taskDetails?.activityLogs)">
+                            <li style="width:100%;text-align:center;margin:16px 0;">
+                                <span class="badge badge-secondary" style="font-size:14px;padding:6px 16px;border-radius:12px;">
+                                    {{ group.label }}
+                                </span>
+                            </li>
+                            <li *ngFor="let log of group.logs"
+                                [ngClass]="{'position-relative': true, 'right': userProfile?.id === log.user?.id}"
+                                style="width: 100%;">
+                                <img [src]="log.user?.image || 'images/users/user12.jpg'" 
+                                     onerror="this.src='images/users/user12.jpg'"  
+                                     width="35" 
+                                     class="rounded-circle user" 
+                                     [alt]="log.user?.name || 'user'">
+                                <div class="message">
+                                    <small>{{userProfile?.id === log.user?.id ? 'Me' :  log.user?.name}}</small>
+                                    <div>
+                                        <p style="font-size: 16px;">{{ getLogMessage(log) }}</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <span class="time d-block text-muted">19:04</span>
-                        </li>
-                        <li class="position-relative right">
-                            <img src="images/admin.png" width="35" class="rounded-circle user" alt="user">
-                            <div class="message">
-                                <div>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                                </div>
-                            </div>
-                            <span class="time d-block text-muted">12:12</span>
-                        </li>
-                        <li class="position-relative">
-                            <img src="images/users/user12.jpg" width="35" class="rounded-circle user" alt="user">
-                            <div class="message">
-                                <div>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pharetra ligula non varius.</p>
-                                </div>
-                            </div>
-                            <span class="time d-block text-muted">19:04</span>
-                        </li>
-                        <li class="position-relative right">
-                            <img src="images/admin.png" width="35" class="rounded-circle user" alt="user">
-                            <div class="message">
-                                <div>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit.</p>
-                                </div>
-                                <div>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                                </div>
-                            </div>
-                            <span class="time d-block text-muted">12:12</span>
-                        </li>
-                        <li class="position-relative">
-                            <img src="images/users/user12.jpg" width="35" class="rounded-circle user" alt="user">
-                            <div class="message">
-                                <div>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pharetra ligula non varius curabitur etiam malesuada.</p>
-                                </div>
-                                <div>
-                                    <p>Lorem ipsum dolor sit amet. 🔥</p>
-                                </div>
-                            </div>
-                            <span class="time d-block text-muted">19:04</span>
-                        </li>
-                        <li class="position-relative right">
-                            <img src="images/admin.png" width="35" class="rounded-circle user" alt="user">
-                            <div class="message">
-                                <div>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                                </div>
-                            </div>
-                            <span class="time d-block text-muted">12:12</span>
-                        </li>
+                                <span class="time d-block text-muted">
+                                    <ng-container *ngIf="isToday(log.timestamp); else showDate">
+                                        {{ log.timestamp | date:'HH:mm' }}
+                                    </ng-container>
+                                    <ng-template #showDate>
+                                        {{ log.timestamp | date:'dd MMM, HH:mm' }}
+                                    </ng-template>
+                                </span>
+                            </li>
+                        </ng-container>
                     </ul>
                 </div>
                 <div class="chat-footer position-relative">
@@ -161,6 +213,138 @@
                     </button>
                 </div>
             </mat-card-content>
+        </mat-card>
+    </div>
+    <div class="col-lg-3">
+        <mat-card
+        class="daxa-card agent-info-card mb-25 border-radius bg-white border-none d-block"
+        [class.component-dark-theme]="themeService.isDark()"
+        [class.rtl-enabled]="themeService.isRTLEnabled()"
+    >
+        <mat-card-content>
+            <div class="info">
+                <ul class="pl-0 mb-0 list-unstyled mt-0">
+                    <li class="text-body">
+                        <span class="d-block text-black fw-medium">
+                            Upload Attachments
+                        </span>
+                        <!-- <mat-form-field appearance="outline" class="small-form-field"> -->
+                            <!-- <mat-label>Attachments</mat-label> -->
+                            <file-upload
+                                style="margin-top: 5px;"
+                                class="file-uploader"
+                                [(ngModel)]="selecteFile"
+                                (ngModelChange)="onFileSelected($event)"
+                                [multiple]="false">
+                            </file-upload>
+                        <!-- </mat-form-field> -->
+                    </li>
+                    <li class="text-body">
+                        <span class="d-block text-black fw-medium">
+                            Attachments
+                        </span>
+                        <div style=" max-height: 250px; min-height: fit-content; overflow-y: auto; overflow-x: hidden;">
+                            <ul *ngIf="taskFiles && taskFiles.length" style="padding-left:0;">
+                                <li *ngFor="let file of taskFiles" style="display: flex; align-items: center; margin-bottom: 8px; list-style: none; display: flex; justify-content: space-between; border: 2px solid; padding: 1px 5px; border-radius: 5px;">
+                                    <a href="javascript:void(0)" >{{ file.filename || file.originalName }}</a>
+                                    <div>
+                                        <button mat-icon-button color="warn" (click)="deleteFile(file.id)" style="margin-left: 8px;" [disabled]="deleteLoading.has(file.id)">
+                                            <mat-progress-spinner *ngIf="deleteLoading?.has(file.id)" diameter="20" mode="indeterminate" color="warn" style="display:inline-block;" [strokeWidth]="3"></mat-progress-spinner>
+                                            <i *ngIf="!deleteLoading?.has(file.id)" class="material-symbols-outlined" style="font-size: 16px;">
+                                                delete
+                                            </i>
+                                        </button>
+                                        <button mat-icon-button color="primary" (click)="downloadTaskFileByUserAction(file)" style="margin-left: 4px;" [disabled]="downloadLoading.has(file.id)">
+                                            <mat-progress-spinner *ngIf="downloadLoading?.has(file.id)" diameter="20" mode="indeterminate" color="primary" style="display:inline-block;" [strokeWidth]="3"></mat-progress-spinner>
+                                            <i *ngIf="!downloadLoading?.has(file.id)" class="material-symbols-outlined" style="font-size: 16px;">
+                                                download
+                                            </i>
+                                        </button>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="text-body">
+                        <span class="d-block text-black fw-medium">
+                           Make Call
+                        </span>
+                        <div class="row">
+                            
+                            <div class="col-md-6">
+                                <mat-form-field appearance="fill" class="small-form-field">
+                                    <mat-label>Status</mat-label>
+                                    <mat-select [(ngModel)]="callStatus">
+                                      <mat-option value="scheduled">Scheduled</mat-option>
+                                      <mat-option value="in_progress">In Progress</mat-option>
+                                      <mat-option value="completed">completed</mat-option>
+                                      <mat-option value="missed">Missed</mat-option>
+                                      <mat-option value="cancelled">Cancelled</mat-option>
+                                      <mat-option value="failed">Failed</mat-option>
+                                      <mat-option value="rescheduled">Rescheduled</mat-option>
+                                      <mat-option value="not_answered">Not Answered</mat-option>
+                                      <mat-option value="busy">Busy</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-md-6">
+                                <button mat-flat-button color="primary" style="height: 100%; width: 100%;" (click)="makeCallOrMail('call')">
+                                    <i class="material-symbols-outlined" style="font-size: 11px;">
+                                        call
+                                    </i>
+                                     <span style="font-size: 12px; margin-left: 5px ;">Call Update</span>
+                                </button>
+                            </div>
+                            <div class="col-12">
+                                <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
+                                    <mat-label>Details</mat-label>
+                                    <textarea matInput name="details-call" id="details-call" [(ngModel)]="callDescription" cols="30" rows="1"></textarea>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </li>                    
+                    <li class="text-body">
+                        <span class="d-block text-black fw-medium">
+                           Sent Mail
+                        </span>
+                        <div class="row">
+                            
+                            <div class="col-md-6">
+                                <mat-form-field appearance="fill" class="small-form-field">
+                                    <mat-label>Status</mat-label>
+                                    <mat-select [(ngModel)]="emailStatus">
+                                      <mat-option value="draft">Draft</mat-option>
+                                      <mat-option value="queued">Queued</mat-option>
+                                      <mat-option value="sent">Sent</mat-option>
+                                      <mat-option value="delivered">Delivered</mat-option>
+                                      <mat-option value="bounced">Bounced</mat-option>
+                                      <mat-option value="opened">Opened</mat-option>
+                                      <mat-option value="clicked">Clicked</mat-option>
+                                      <mat-option value="failed">Failed</mat-option>
+                                      <mat-option value="replied">Replied</mat-option>
+                                      <mat-option value="spam_reported">Spam Reported</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-md-6">
+                                <button mat-flat-button color="primary" style="height: 100%; width: 100%;" (click)="makeCallOrMail('mail')">
+                                    <i class="material-symbols-outlined" style="font-size: 11px;">
+                                        mail
+                                    </i>
+                                     <span style="font-size: 12px; margin-left: 5px ;">Mail Update</span>
+                                </button>
+                            </div>
+                            <div class="col-12">
+                                <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
+                                    <mat-label>Details</mat-label>
+                                    <textarea matInput name="details-call" id="details-call" cols="30" [(ngModel)]="emailDescriptiom" rows="1"></textarea>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </mat-card-content>
         </mat-card>
     </div>
 </div>

@@ -11,7 +11,7 @@
             </a>
         </li>
         <li class="breadcrumb-item position-relative">
-            Project Management
+            Users
         </li>
         <li class="breadcrumb-item position-relative">
             Teams
@@ -19,13 +19,30 @@
     </ol>
 </div>
 
+<mat-card
+    class="daxa-card contacts-list-card mb-25 border-radius bg-white border-none d-block"
+    [class.rtl-enabled]="themeService.isRTLEnabled()"
+>
+    <mat-card-header>
+        <mat-card-title>
+            Teams
+        </mat-card-title>
+        <mat-card-subtitle>
+            <a mat-button class="add-new-btn" (click)="openUserForm(teamDialog)">
+                + Add New Team
+            </a>
+        </mat-card-subtitle>
+    </mat-card-header>
+</mat-card>
+
 <!-- Teams -->
 <div
     class="row"
     [class.component-dark-theme]="themeService.isDark()"
     [class.rtl-enabled]="themeService.isRTLEnabled()"
+    *ngIf="teams.length !== 0; else teamsListNotFound"
 >
-    <div class="col-md-6 col-xxl-4 col-xxxl-3">
+    <div *ngFor="let team of teams" class="col-md-6 col-xxl-4 col-xxxl-3">
         <mat-card class="daxa-card team-card mb-25 border-radius bg-white border-none d-block">
             <mat-card-header>
                 <mat-card-subtitle>
@@ -35,13 +52,13 @@
                         </i>
                     </button>
                     <mat-menu #cardHeaderMenu="matMenu" class="card-header-menu" xPosition="before">
-                        <button mat-menu-item>
+                        <button mat-menu-item  routerLink="/teams/team-details" [queryParams]="{id: team.id}">
                             View
                         </button>
-                        <button mat-menu-item>
+                        <button mat-menu-item (click)="openUserForm(teamDialog, team)">
                             Edit
                         </button>
-                        <button mat-menu-item>
+                        <button mat-menu-item (click)="openDeleteUser(team, confirmDialog)">
                             Delete
                         </button>
                     </mat-menu>
@@ -50,14 +67,14 @@
             <mat-card-content>
                 <div class="d-flex align-items-center">
                     <div class="image">
-                        <img src="images/users/user15.jpg" alt="user-image">
+                        <img [src]="team.image || 'images/users/user15.jpg'" onerror="this.src='images/users/user15.jpg'" alt="user-image">
                     </div>
                     <div>
                         <h5>
-                            Robert Stewart
+                            {{team.name}}
                         </h5>
                         <span class="d-block text-body">
-                            Team Leader
+                            Leader: {{getTeamLeader(team.members, team.teamLeaderId).name}}
                         </span>
                     </div>
                 </div>
@@ -67,545 +84,112 @@
                 <span class="d-block text-body">
                     Team Members:
                 </span>
-                <div class="users-list">
+                <div class="users-list d-flex align-items-center">
+                    <ng-container *ngFor="let member of getTeamMembers(team) | slice:0:5">
+                      <img 
+                        [src]="member.image || 'images/users/user1.jpg'" 
+                        [matTooltip]="member.name" 
+                        matTooltipPosition="above" 
+                        class="rounded-circle member-img" 
+                        onerror="this.src='images/users/user1.jpg'"
+                        alt="member">
+                    </ng-container>
+                  
+                    <ng-container *ngIf="getTeamMembers(team).length > 5">
+                      <div class="extra-count">
+                        +{{ getTeamMembers(team).length - 5 }}
+                      </div>
+                    </ng-container>
+                  </div>
+                  
+                <!-- <div class="users-list">
                     <img src="images/users/user1.jpg" alt="user-image">
                     <img src="images/users/user2.jpg" alt="user-image">
                     <img src="images/users/user3.jpg" alt="user-image">
-                </div>
+                </div> -->
                 <div class="d-flex align-items-center">
                     <span class="d-block text-body">
                         90%
                     </span>
                     <mat-progress-bar mode="determinate" value="40"></mat-progress-bar>
                 </div>
-                <button mat-button routerLink="/teams/team-details" >
-                    View Details
-                </button>
-            </mat-card-content>
-        </mat-card>
-    </div>
-    <div class="col-md-6 col-xxl-4 col-xxxl-3">
-        <mat-card class="daxa-card team-card mb-25 border-radius bg-white border-none d-block">
-            <mat-card-header>
-                <mat-card-subtitle>
-                    <button type="button" mat-button class="card-header-menu-btn p-0" [matMenuTriggerFor]="cardHeaderMenu">
-                        <i class="material-symbols-outlined">
-                            more_horiz
-                        </i>
-                    </button>
-                    <mat-menu #cardHeaderMenu="matMenu" class="card-header-menu" xPosition="before">
-                        <button mat-menu-item>
-                            View
-                        </button>
-                        <button mat-menu-item>
-                            Edit
-                        </button>
-                        <button mat-menu-item>
-                            Delete
-                        </button>
-                    </mat-menu>
-                </mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <div class="d-flex align-items-center">
-                    <div class="image">
-                        <img src="images/users/user12.jpg" alt="user-image">
-                    </div>
-                    <div>
-                        <h5>
-                            Walter Frazier
-                        </h5>
-                        <span class="d-block text-body">
-                            Team Leader
-                        </span>
-                    </div>
-                </div>
-                <span class="title d-block fw-medium">
-                    Hotel management system
-                </span>
-                <span class="d-block text-body">
-                    Team Members:
-                </span>
-                <div class="users-list">
-                    <img src="images/users/user4.jpg" alt="user-image">
-                    <img src="images/users/user5.jpg" alt="user-image">
-                </div>
-                <div class="d-flex align-items-center">
-                    <span class="d-block text-body">
-                        80%
-                    </span>
-                    <mat-progress-bar mode="determinate" value="40"></mat-progress-bar>
-                </div>
-                <button mat-button routerLink="/teams/team-details" >
-                    View Details
-                </button>
-            </mat-card-content>
-        </mat-card>
-    </div>
-    <div class="col-md-6 col-xxl-4 col-xxxl-3">
-        <mat-card class="daxa-card team-card mb-25 border-radius bg-white border-none d-block">
-            <mat-card-header>
-                <mat-card-subtitle>
-                    <button type="button" mat-button class="card-header-menu-btn p-0" [matMenuTriggerFor]="cardHeaderMenu">
-                        <i class="material-symbols-outlined">
-                            more_horiz
-                        </i>
-                    </button>
-                    <mat-menu #cardHeaderMenu="matMenu" class="card-header-menu" xPosition="before">
-                        <button mat-menu-item>
-                            View
-                        </button>
-                        <button mat-menu-item>
-                            Edit
-                        </button>
-                        <button mat-menu-item>
-                            Delete
-                        </button>
-                    </mat-menu>
-                </mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <div class="d-flex align-items-center">
-                    <div class="image">
-                        <img src="images/users/user1.jpg" alt="user-image">
-                    </div>
-                    <div>
-                        <h5>
-                            Kimberly Anderson
-                        </h5>
-                        <span class="d-block text-body">
-                            Team Leader
-                        </span>
-                    </div>
-                </div>
-                <span class="title d-block fw-medium">
-                    Product development
-                </span>
-                <span class="d-block text-body">
-                    Team Members:
-                </span>
-                <div class="users-list">
-                    <img src="images/users/user6.jpg" alt="user-image">
-                    <img src="images/users/user7.jpg" alt="user-image">
-                    <img src="images/users/user8.jpg" alt="user-image">
-                </div>
-                <div class="d-flex align-items-center">
-                    <span class="d-block text-body">
-                        95%
-                    </span>
-                    <mat-progress-bar mode="determinate" value="40"></mat-progress-bar>
-                </div>
-                <button mat-button routerLink="/teams/team-details" >
-                    View Details
-                </button>
-            </mat-card-content>
-        </mat-card>
-    </div>
-    <div class="col-md-6 col-xxl-4 col-xxxl-3">
-        <mat-card class="daxa-card team-card mb-25 border-radius bg-white border-none d-block">
-            <mat-card-header>
-                <mat-card-subtitle>
-                    <button type="button" mat-button class="card-header-menu-btn p-0" [matMenuTriggerFor]="cardHeaderMenu">
-                        <i class="material-symbols-outlined">
-                            more_horiz
-                        </i>
-                    </button>
-                    <mat-menu #cardHeaderMenu="matMenu" class="card-header-menu" xPosition="before">
-                        <button mat-menu-item>
-                            View
-                        </button>
-                        <button mat-menu-item>
-                            Edit
-                        </button>
-                        <button mat-menu-item>
-                            Delete
-                        </button>
-                    </mat-menu>
-                </mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <div class="d-flex align-items-center">
-                    <div class="image">
-                        <img src="images/users/user8.jpg" alt="user-image">
-                    </div>
-                    <div>
-                        <h5>
-                            Carol Camacho
-                        </h5>
-                        <span class="d-block text-body">
-                            Team Leader
-                        </span>
-                    </div>
-                </div>
-                <span class="title d-block fw-medium">
-                    Daxa dashboard design
-                </span>
-                <span class="d-block text-body">
-                    Team Members:
-                </span>
-                <div class="users-list">
-                    <img src="images/users/user9.jpg" alt="user-image">
-                    <img src="images/users/user10.jpg" alt="user-image">
-                </div>
-                <div class="d-flex align-items-center">
-                    <span class="d-block text-body">
-                        70%
-                    </span>
-                    <mat-progress-bar mode="determinate" value="40"></mat-progress-bar>
-                </div>
-                <button mat-button routerLink="/teams/team-details" >
-                    View Details
-                </button>
-            </mat-card-content>
-        </mat-card>
-    </div>
-    <div class="col-md-6 col-xxl-4 col-xxxl-3">
-        <mat-card class="daxa-card team-card mb-25 border-radius bg-white border-none d-block">
-            <mat-card-header>
-                <mat-card-subtitle>
-                    <button type="button" mat-button class="card-header-menu-btn p-0" [matMenuTriggerFor]="cardHeaderMenu">
-                        <i class="material-symbols-outlined">
-                            more_horiz
-                        </i>
-                    </button>
-                    <mat-menu #cardHeaderMenu="matMenu" class="card-header-menu" xPosition="before">
-                        <button mat-menu-item>
-                            View
-                        </button>
-                        <button mat-menu-item>
-                            Edit
-                        </button>
-                        <button mat-menu-item>
-                            Delete
-                        </button>
-                    </mat-menu>
-                </mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <div class="d-flex align-items-center">
-                    <div class="image">
-                        <img src="images/users/user17.jpg" alt="user-image">
-                    </div>
-                    <div>
-                        <h5>
-                            Roscoe Guerrero
-                        </h5>
-                        <span class="d-block text-body">
-                            Team Leader
-                        </span>
-                    </div>
-                </div>
-                <span class="title d-block fw-medium">
-                    Python upgrade
-                </span>
-                <span class="d-block text-body">
-                    Team Members:
-                </span>
-                <div class="users-list">
-                    <img src="images/users/user11.jpg" alt="user-image">
-                    <img src="images/users/user12.jpg" alt="user-image">
-                </div>
-                <div class="d-flex align-items-center">
-                    <span class="d-block text-body">
-                        100%
-                    </span>
-                    <mat-progress-bar mode="determinate" value="40"></mat-progress-bar>
-                </div>
-                <button mat-button routerLink="/teams/team-details" >
-                    View Details
-                </button>
-            </mat-card-content>
-        </mat-card>
-    </div>
-    <div class="col-md-6 col-xxl-4 col-xxxl-3">
-        <mat-card class="daxa-card team-card mb-25 border-radius bg-white border-none d-block">
-            <mat-card-header>
-                <mat-card-subtitle>
-                    <button type="button" mat-button class="card-header-menu-btn p-0" [matMenuTriggerFor]="cardHeaderMenu">
-                        <i class="material-symbols-outlined">
-                            more_horiz
-                        </i>
-                    </button>
-                    <mat-menu #cardHeaderMenu="matMenu" class="card-header-menu" xPosition="before">
-                        <button mat-menu-item>
-                            View
-                        </button>
-                        <button mat-menu-item>
-                            Edit
-                        </button>
-                        <button mat-menu-item>
-                            Delete
-                        </button>
-                    </mat-menu>
-                </mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <div class="d-flex align-items-center">
-                    <div class="image">
-                        <img src="images/users/user11.jpg" alt="user-image">
-                    </div>
-                    <div>
-                        <h5>
-                            Dustin Fritch
-                        </h5>
-                        <span class="d-block text-body">
-                            Team Leader
-                        </span>
-                    </div>
-                </div>
-                <span class="title d-block fw-medium">
-                    Project alpho
-                </span>
-                <span class="d-block text-body">
-                    Team Members:
-                </span>
-                <div class="users-list">
-                    <img src="images/users/user13.jpg" alt="user-image">
-                    <img src="images/users/user14.jpg" alt="user-image">
-                </div>
-                <div class="d-flex align-items-center">
-                    <span class="d-block text-body">
-                        60%
-                    </span>
-                    <mat-progress-bar mode="determinate" value="40"></mat-progress-bar>
-                </div>
-                <button mat-button routerLink="/teams/team-details" >
-                    View Details
-                </button>
-            </mat-card-content>
-        </mat-card>
-    </div>
-    <div class="col-md-6 col-xxl-4 col-xxxl-3">
-        <mat-card class="daxa-card team-card mb-25 border-radius bg-white border-none d-block">
-            <mat-card-header>
-                <mat-card-subtitle>
-                    <button type="button" mat-button class="card-header-menu-btn p-0" [matMenuTriggerFor]="cardHeaderMenu">
-                        <i class="material-symbols-outlined">
-                            more_horiz
-                        </i>
-                    </button>
-                    <mat-menu #cardHeaderMenu="matMenu" class="card-header-menu" xPosition="before">
-                        <button mat-menu-item>
-                            View
-                        </button>
-                        <button mat-menu-item>
-                            Edit
-                        </button>
-                        <button mat-menu-item>
-                            Delete
-                        </button>
-                    </mat-menu>
-                </mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <div class="d-flex align-items-center">
-                    <div class="image">
-                        <img src="images/users/user13.jpg" alt="user-image">
-                    </div>
-                    <div>
-                        <h5>
-                            Robert Heinemann
-                        </h5>
-                        <span class="d-block text-body">
-                            Team Leader
-                        </span>
-                    </div>
-                </div>
-                <span class="title d-block fw-medium">
-                    Vaxo app design
-                </span>
-                <span class="d-block text-body">
-                    Team Members:
-                </span>
-                <div class="users-list">
-                    <img src="images/users/user15.jpg" alt="user-image">
-                    <img src="images/users/user16.jpg" alt="user-image">
-                    <img src="images/users/user17.jpg" alt="user-image">
-                </div>
-                <div class="d-flex align-items-center">
-                    <span class="d-block text-body">
-                        75%
-                    </span>
-                    <mat-progress-bar mode="determinate" value="40"></mat-progress-bar>
-                </div>
-                <button mat-button routerLink="/teams/team-details" >
-                    View Details
-                </button>
-            </mat-card-content>
-        </mat-card>
-    </div>
-    <div class="col-md-6 col-xxl-4 col-xxxl-3">
-        <mat-card class="daxa-card team-card mb-25 border-radius bg-white border-none d-block">
-            <mat-card-header>
-                <mat-card-subtitle>
-                    <button type="button" mat-button class="card-header-menu-btn p-0" [matMenuTriggerFor]="cardHeaderMenu">
-                        <i class="material-symbols-outlined">
-                            more_horiz
-                        </i>
-                    </button>
-                    <mat-menu #cardHeaderMenu="matMenu" class="card-header-menu" xPosition="before">
-                        <button mat-menu-item>
-                            View
-                        </button>
-                        <button mat-menu-item>
-                            Edit
-                        </button>
-                        <button mat-menu-item>
-                            Delete
-                        </button>
-                    </mat-menu>
-                </mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <div class="d-flex align-items-center">
-                    <div class="image">
-                        <img src="images/users/user2.jpg" alt="user-image">
-                    </div>
-                    <div>
-                        <h5>
-                            Steve Smith
-                        </h5>
-                        <span class="d-block text-body">
-                            Team Leader
-                        </span>
-                    </div>
-                </div>
-                <span class="title d-block fw-medium">
-                    Aegis accounting service
-                </span>
-                <span class="d-block text-body">
-                    Team Members:
-                </span>
-                <div class="users-list">
-                    <img src="images/users/user1.jpg" alt="user-image">
-                    <img src="images/users/user2.jpg" alt="user-image">
-                </div>
-                <div class="d-flex align-items-center">
-                    <span class="d-block text-body">
-                        90%
-                    </span>
-                    <mat-progress-bar mode="determinate" value="40"></mat-progress-bar>
-                </div>
-                <button mat-button routerLink="/teams/team-details" >
-                    View Details
-                </button>
-            </mat-card-content>
-        </mat-card>
-    </div>
-    <div class="col-md-6 col-xxl-4 col-xxxl-3">
-        <mat-card class="daxa-card team-card mb-25 border-radius bg-white border-none d-block">
-            <mat-card-header>
-                <mat-card-subtitle>
-                    <button type="button" mat-button class="card-header-menu-btn p-0" [matMenuTriggerFor]="cardHeaderMenu">
-                        <i class="material-symbols-outlined">
-                            more_horiz
-                        </i>
-                    </button>
-                    <mat-menu #cardHeaderMenu="matMenu" class="card-header-menu" xPosition="before">
-                        <button mat-menu-item>
-                            View
-                        </button>
-                        <button mat-menu-item>
-                            Edit
-                        </button>
-                        <button mat-menu-item>
-                            Delete
-                        </button>
-                    </mat-menu>
-                </mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <div class="d-flex align-items-center">
-                    <div class="image">
-                        <img src="images/users/user14.jpg" alt="user-image">
-                    </div>
-                    <div>
-                        <h5>
-                            Jonathan Jones
-                        </h5>
-                        <span class="d-block text-body">
-                            Team Leader
-                        </span>
-                    </div>
-                </div>
-                <span class="title d-block fw-medium">
-                    Aoriv ai design
-                </span>
-                <span class="d-block text-body">
-                    Team Members:
-                </span>
-                <div class="users-list">
-                    <img src="images/users/user3.jpg" alt="user-image">
-                    <img src="images/users/user4.jpg" alt="user-image">
-                </div>
-                <div class="d-flex align-items-center">
-                    <span class="d-block text-body">
-                        85%
-                    </span>
-                    <mat-progress-bar mode="determinate" value="40"></mat-progress-bar>
-                </div>
-                <button mat-button routerLink="/teams/team-details" >
-                    View Details
-                </button>
-            </mat-card-content>
-        </mat-card>
-    </div>
-    <div class="col-md-6 col-xxl-4 col-xxxl-3">
-        <mat-card class="daxa-card team-card mb-25 border-radius bg-white border-none d-block">
-            <mat-card-header>
-                <mat-card-subtitle>
-                    <button type="button" mat-button class="card-header-menu-btn p-0" [matMenuTriggerFor]="cardHeaderMenu">
-                        <i class="material-symbols-outlined">
-                            more_horiz
-                        </i>
-                    </button>
-                    <mat-menu #cardHeaderMenu="matMenu" class="card-header-menu" xPosition="before">
-                        <button mat-menu-item>
-                            View
-                        </button>
-                        <button mat-menu-item>
-                            Edit
-                        </button>
-                        <button mat-menu-item>
-                            Delete
-                        </button>
-                    </mat-menu>
-                </mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <div class="d-flex align-items-center">
-                    <div class="image">
-                        <img src="images/users/user9.jpg" alt="user-image">
-                    </div>
-                    <div>
-                        <h5>
-                            David Williams
-                        </h5>
-                        <span class="d-block text-body">
-                            Team Leader
-                        </span>
-                    </div>
-                </div>
-                <span class="title d-block fw-medium">
-                    Beja banking finance
-                </span>
-                <span class="d-block text-body">
-                    Team Members:
-                </span>
-                <div class="users-list">
-                    <img src="images/users/user5.jpg" alt="user-image">
-                    <img src="images/users/user6.jpg" alt="user-image">
-                </div>
-                <div class="d-flex align-items-center">
-                    <span class="d-block text-body">
-                        80%
-                    </span>
-                    <mat-progress-bar mode="determinate" value="40"></mat-progress-bar>
-                </div>
-                <button mat-button routerLink="/teams/team-details" >
+                <button mat-button routerLink="/teams/team-details" [queryParams]="{id: team.id}">
                     View Details
                 </button>
             </mat-card-content>
         </mat-card>
     </div>
 </div>
+
+<ng-template #teamsListNotFound>
+    <div class="text-center my-5 h-100 " >
+        <h4>No teams found</h4>
+        <!-- <p>&nbsp;</p> -->
+        <button mat-raised-button color="primary" (click)="openUserForm(teamDialog)">Create Team</button>
+    </div>          
+</ng-template>
+
+<ng-template #teamDialog>
+    <h2 mat-dialog-title>{{ isEdit ? 'Edit Team' : 'Add New Team' }}</h2>
+    <mat-dialog-content>
+      <form [formGroup]="teamForm">
+        <!-- Name -->
+        <mat-form-field class="w-100" appearance="outline" style="margin-bottom: 10px !important;">
+          <mat-label>Name</mat-label>
+          <input matInput formControlName="name" />
+        </mat-form-field>
+
+        <!-- Members -->
+        <mat-form-field class="w-100" appearance="outline" style="margin-bottom: 10px !important;">
+            <mat-label>Members</mat-label>
+            <mat-select formControlName="members" multiple>
+                @for (user of users; track user) {
+                    <mat-option *ngIf="user.role !== 'superadmin'" [value]="user.id">{{user.name}} &nbsp; {{'( ' + user.designation + ' )'}}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <!-- Team Leader -->
+        <mat-form-field class="w-100" appearance="outline" style="margin-bottom: 10px !important;">
+          <mat-label>Team Leader</mat-label>
+          <mat-select formControlName="teamLeaderId" required>
+            <mat-option *ngFor="let user of users" [value]="user.id" [disabled]="user.role === 'superadmin' || !(teamForm.value.members?.includes(user.id))">{{user.name}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="col-sm-12">
+            <div class="mb-25">
+                <label class="main-label d-block lh-1 text-black">
+                    Team Image
+                </label>
+                <file-upload
+                class="file-uploader"
+                [multiple]="false"
+                [(ngModel)]="image"
+                [ngModelOptions]="{standalone: true}"
+                (ngModelChange)="onFileSelected($event)">
+              </file-upload>
+            </div>
+        </div>
+        <div *ngIf="base64Image">
+            <p>Preview:</p>
+            <img [src]="base64Image" style="max-width: 100px;" />
+          </div>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="closeModal()">Cancel</button>
+      <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="teamForm.invalid">Save</button>
+    </mat-dialog-actions>
+  </ng-template> 
+  
+  <ng-template #confirmDialog let-data>
+    <h2 mat-dialog-title>Confirm Delete</h2>
+    <mat-dialog-content>
+      Are you sure you want to delete <strong>{{ data.name }}</strong>?
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="closeModal()">Cancel</button>
+      <button mat-flat-button color="warn" (click)="deleteTeam()">Delete</button>
+    </mat-dialog-actions>
+  </ng-template>

@@ -143,6 +143,73 @@
     }
 }
 
+.daxa-badge {
+    font-size: 15px;
+    border-radius: 3px;
+    padding: 3px 10.24px;
+
+    &.shipped {
+        color: var(--daxaColor);
+        background: rgba(15, 121, 243, 0.10);
+    }
+    &.pending {
+        color: var(--warningColor);
+        background: rgba(241, 179, 28, 0.10);
+    }
+    &.confirmed {
+        color: var(--successColor);
+        background: rgba(46, 212, 126, 0.10);
+    }
+    &.rejected {
+        color: var(--dangerColor);
+        background: rgba(231, 76, 60, 0.10);
+    }
+    &.new {
+        color: var(--successColor);
+        background: rgba(46, 212, 126, 0.10);
+    }
+    &.in-progress {
+        color: var(--warningColor);
+        background: rgba(241, 179, 28, 0.10);
+    }
+    &.won {
+        color: var(--daxaColor);
+        background: rgba(15, 121, 243, 0.10);
+    }
+    &.lost {
+        color: var(--dangerColor);
+        background: rgba(231, 76, 60, 0.10);
+    }
+    &.active {
+        color: var(--successColor);
+        background: rgba(46, 212, 126, 0.10);
+    }
+    &.deactive {
+        color: var(--dangerColor);
+        background: rgba(231, 76, 60, 0.10);
+    }
+    &.successful {
+        color: var(--daxaColor);
+        background: rgba(15, 121, 243, 0.10);
+    }
+    &.upcoming {
+        color: var(--daxaColor);
+        background: rgba(15, 121, 243, 0.10);
+    }
+    &.past {
+        color: var(--dangerColor);
+        background: rgba(231, 76, 60, 0.10);
+    }
+    &.read {
+        color: var(--successColor);
+        background: rgba(46, 212, 126, 0.10);
+    }
+    &.unread {
+        color: var(--dangerColor);
+        background: rgba(231, 76, 60, 0.10);
+    }
+}
+
 /* Max width 767px */
 @media only screen and (max-width : 767px) {
 

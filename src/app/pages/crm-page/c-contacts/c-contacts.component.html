@@ -72,19 +72,19 @@
                             Contact ID
                         </th>
                         <td mat-cell *matCellDef="let element">
-                            {{element.contactID}}
+                            #ACCN-T{{element.contactID}}
                         </td>
                     </ng-container>
 
                     <!-- Customer Column -->
                     <ng-container matColumnDef="customer">
                         <th mat-header-cell *matHeaderCellDef>
-                            Customer
+                            Name
                         </th>
                         <td mat-cell *matCellDef="let element" class="text-black">
                             <div class="info d-flex align-items-center">
                                 <div class="image">
-                                    <img [src]="element.customer.img" alt="customer-image">
+                                    <img [src]="element.customer.img" alt="customer-image" onerror="this.src='images/users/user12.jpg';">
                                 </div>
                                 <span class="d-block fw-medium">
                                     {{element.customer.name}}
@@ -113,6 +113,16 @@
                         </td>
                     </ng-container>
 
+                    <!-- Company Column -->
+                    <ng-container matColumnDef="company">
+                        <th mat-header-cell *matHeaderCellDef>
+                            Company
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            {{element.company}}
+                        </td>
+                    </ng-container>
+
                     <!-- Last Contacted Column -->
                     <ng-container matColumnDef="lastContacted">
                         <th mat-header-cell *matHeaderCellDef>
@@ -123,23 +133,13 @@
                         </td>
                     </ng-container>
 
-                    <!-- Company Column -->
+                    <!-- Last Contacted Column -->
                     <ng-container matColumnDef="leadSource">
                         <th mat-header-cell *matHeaderCellDef>
-                            Lead Source
+                            Last Contacted
                         </th>
                         <td mat-cell *matCellDef="let element">
                             {{element.leadSource}}
-                        </td>
-                    </ng-container>
-
-                    <!-- Lead Score Column -->
-                    <ng-container matColumnDef="leadScore">
-                        <th mat-header-cell *matHeaderCellDef>
-                            Lead Score
-                        </th>
-                        <td mat-cell *matCellDef="let element">
-                            {{element.leadScore}}
                         </td>
                     </ng-container>
 
@@ -165,17 +165,22 @@
                         </th>
                         <td mat-cell *matCellDef="let element">
                             <div class="action-info">
-                                <a mat-button routerLink="/crm-page/edit-contact" matTooltip="Edit Contact" matTooltipPosition="above">
+                                <a mat-button [routerLink]="['/crm-page/edit-contact']" [queryParams]="{id: element.contactID}" matTooltip="Edit Contact" matTooltipPosition="above">
                                     <i class="material-symbols-outlined">
                                         {{element.action.edit}}
                                     </i>
                                 </a>
-                                <a mat-button [routerLink]="['/crm-page/edit-lead', {data: 'Create'}]"  matTooltip="Create Lead" matTooltipPosition="above">
+                                <a mat-button  matTooltip="Create Lead" matTooltipPosition="above" (click)="openForwardToLeadDialog(element, forwardToLeadDialog)">
                                     <i class="material-symbols-outlined">
-                                        {{element.action.redirect}}
+                                        {{element.action.openToLead}}
                                     </i>
                                 </a>
-                                <button type="button" mat-button matTooltip="Delete" matTooltipPosition="above">
+                                <a mat-button  matTooltip="Create Task" matTooltipPosition="above" (click)="openAssignTaskDialog(element, assignDialog)">
+                                    <i class="material-symbols-outlined">
+                                        {{element.action.task}}
+                                    </i>
+                                </a>
+                                <button type="button" mat-button matTooltip="Delete" matTooltipPosition="above" (click)="openDeleteDialog(element.contactID, confirmDialog)">
                                     <i class="material-symbols-outlined">
                                         {{element.action.delete}}
                                     </i>
@@ -198,3 +203,105 @@
         </div>
     </mat-card-content>
 </mat-card>
+
+<ng-template #confirmDialog>
+    <h2 mat-dialog-title>Confirm Delete</h2>
+    <mat-dialog-content>
+      Are you sure you want to delete this contact?
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="closeModal()">Cancel</button>
+      <button mat-flat-button color="warn" (click)="confirmDelete()">Delete</button>
+    </mat-dialog-actions>
+</ng-template>
+
+<ng-template #forwardToLeadDialog>
+    <h2 mat-dialog-title>Forward To Lead</h2>
+    <mat-dialog-content>
+        <div class="mb-3">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="image" style="border-radius: 50%;">
+                        <img [src]="selectedContact?.customer?.img" alt="customer-image" onerror="this.src='images/users/user12.jpg';">
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="fw-bold" style="font-size: 1.2em;">{{selectedContact?.customer?.name}}</div>
+                    <div class="text-muted">{{selectedContact?.email}}</div>
+                    <div class="text-muted">{{selectedContact?.phone}}</div>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3" style="margin-top: 10px;">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Select Product</mat-label>
+                <mat-select [(ngModel)]="assignProduct">
+                    <mat-option *ngFor="let product of products" [value]="product.id">
+                        <span class="option-flex">
+                            <img [src]="product.image" alt="" class="option-img" onerror="this.src='images/users/user12.jpg';" style="width:32px;height:32px;object-fit:cover;aspect-ratio:1/1;border-radius:8px; border-radius: 50%;">
+                            {{product.name}}
+                        </span>
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="closeModal()">Cancel</button>
+      <button mat-flat-button color="primary" (click)="forwardToLead()">Forward</button>
+    </mat-dialog-actions>
+</ng-template>
+
+<ng-template #assignDialog>
+    <h2 mat-dialog-title>Assign Task</h2>
+    <mat-dialog-content>
+        <div class="mb-3">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="image" style="border-radius: 50%;">
+                        <img [src]="selectedContact?.customer?.img" alt="customer-image" onerror="this.src='images/users/user12.jpg';">
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="fw-bold" style="font-size: 1.2em;">{{selectedContact?.customer?.name}}</div>
+                    <div class="text-muted">{{selectedContact?.email}}</div>
+                    <div class="text-muted">{{selectedContact?.phone}}</div>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3" style="margin-bottom: 10px;">
+            <mat-radio-group [(ngModel)]="assignType">
+                <mat-radio-button value="user" style="margin-right: 5px;">User</mat-radio-button>
+                <mat-radio-button value="team">Team</mat-radio-button>
+            </mat-radio-group>
+        </div>
+        <div class="mb-3">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Select {{assignType | titlecase}}</mat-label>
+                <mat-select [(ngModel)]="assignTo">
+                    <ng-container *ngIf="assignType === 'user'">
+                        <mat-option *ngFor="let user of users" [value]="user.id">
+                            <span class="option-flex">
+                                <img [src]="user.image" alt="" class="option-img" onerror="this.src='images/users/user12.jpg';">
+                                {{user.name}}
+                            </span>
+                        </mat-option>
+                    </ng-container>
+                    <ng-container *ngIf="assignType === 'team'">
+                        <mat-option *ngFor="let team of teams" [value]="team.id">
+                            <span class="option-flex">
+                                <img [src]="team.image" alt="" class="option-img" onerror="this.src='images/users/user12.jpg';">
+                                {{team.name}}
+                            </span>
+                        </mat-option>
+                    </ng-container>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-button (click)="closeModal()">Cancel</button>
+        <button mat-flat-button color="primary" (click)="confirmAssignTask()" [disabled]="!assignTo">Assign</button>
+    </mat-dialog-actions>
+</ng-template>

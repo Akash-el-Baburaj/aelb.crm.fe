@@ -105,7 +105,7 @@
                                     ID
                                 </th>
                                 <td mat-cell *matCellDef="let element">
-                                    {{element.id}}
+                                    #ACL-D{{element.id}}
                                 </td>
                             </ng-container>
         
@@ -117,7 +117,7 @@
                                 <td mat-cell *matCellDef="let element" class="text-black">
                                     <div class="info d-flex align-items-center" style="cursor: pointer;" routerLink="/crm-page/profile" >
                                         <div class="image">
-                                            <img [src]="element.customer.img" alt="customer-image">
+                                            <img [src]="element.customer.img" alt="customer-image" onerror="this.src='images/users/user12.jpg';">
                                         </div>
                                         <span class="d-block fw-medium">
                                             {{element.customer.name}}
@@ -149,7 +149,7 @@
                             <!-- Create Date Column -->
                             <ng-container matColumnDef="createDate">
                                 <th mat-header-cell *matHeaderCellDef>
-                                    Create Date
+                                    Last Contacted Date
                                 </th>
                                 <td mat-cell *matCellDef="let element">
                                     {{element.createDate}}
@@ -159,22 +159,23 @@
                             <!-- Course Column -->
                             <ng-container matColumnDef="company">
                                 <th mat-header-cell *matHeaderCellDef>
-                                    Interested Course
+                                    Company
                                 </th>
                                 <td mat-cell *matCellDef="let element">
                                     {{element.company}}
                                 </td>
                             </ng-container>
         
-                            <!-- Course Column -->
-                            <ng-container matColumnDef="assignedTo">
+                            <!-- ProductOrServices Column -->
+                            <ng-container matColumnDef="ProductOrServices">
                                 <th mat-header-cell *matHeaderCellDef>
-                                    Assigned To
+                                    Product
                                 </th>
                                 <td mat-cell *matCellDef="let element">
-                                    @for (item of element.assignedTo; track item){
+                                    {{element.ProductOrServices.length}}
+                                    <!-- @for (item of element.assignedTo; track item){
                                         <span>{{item + ', '}}</span>
-                                    }
+                                    } -->
                                 </td>
                             </ng-container>
                             
@@ -194,17 +195,17 @@
                                     Status
                                 </th>
                                 <td mat-cell *matCellDef="let element">
-                                    <span class="daxa-badge new d-inline-block" *ngIf="element.status.new">
-                                        {{element.status.new}}
+                                    <span class="daxa-badge new d-inline-block" *ngIf="element.status === 'open'">
+                                        New
                                     </span>
-                                    <span class="daxa-badge in-progress d-inline-block" *ngIf="element.status.inProgress">
-                                        {{element.status.inProgress}}
+                                    <span class="daxa-badge in-progress d-inline-block" *ngIf="element.status === 'in progress'">
+                                        {{element.status}}
                                     </span>
-                                    <span class="daxa-badge won d-inline-block" *ngIf="element.status.won">
-                                        {{element.status.won}}
+                                    <span class="daxa-badge won d-inline-block" *ngIf="element.status  === 'won'">
+                                        {{element.status}}
                                     </span>
-                                    <span class="daxa-badge lost d-inline-block" *ngIf="element.status.lost">
-                                        {{element.status.lost}}
+                                    <span class="daxa-badge lost d-inline-block" *ngIf="element.status === 'lost'">
+                                        {{element.status}}
                                     </span>
                                 </td>
                             </ng-container>
@@ -221,7 +222,7 @@
                                                 {{element.action.view}}
                                             </i>
                                         </a>
-                                        <a mat-button routerLink="/crm-page/edit-lead" matTooltip="Edit Lead" matTooltipPosition="above">
+                                        <a mat-button routerLink="/crm-page/edit-lead" [queryParams]="{id: element.id}" matTooltip="Edit Lead" matTooltipPosition="above">
                                             <i class="material-symbols-outlined">
                                                 {{element.action.edit}}
                                             </i>
@@ -231,7 +232,7 @@
                                                 {{element.action.createTask}}
                                             </i>
                                         </a>
-                                        <button type="button" mat-button matTooltip="Delete" matTooltipPosition="above">
+                                        <button type="button" (click)="openDeleteDialog(element.id, confirmDialog)" mat-button matTooltip="Delete" matTooltipPosition="above">
                                             <i class="material-symbols-outlined">
                                                 {{element.action.delete}}
                                             </i>
@@ -242,6 +243,9 @@
         
                             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                            <tr class="mat-row" *matNoDataRow>
+                                <td class="mat-cell" colspan="100%" class="text-center">No Leads Found!</td>
+                            </tr>
             
                             <!-- Row shown when there is no matching data. -->
                             <tr class="mat-row" *matNoDataRow>
@@ -258,8 +262,19 @@
                 <ng-template mat-tab-label>
                     <mat-icon class="example-tab-icon">grid_view</mat-icon>
                 </ng-template>
-                <app-c-lead-kanban />
+                <app-c-lead-kanban (dataChange)="getLeadList()"></app-c-lead-kanban>
             </mat-tab>
         </mat-tab-group>
     </mat-card-content>
 </mat-card>
+
+<ng-template #confirmDialog>
+    <h2 mat-dialog-title>Confirm Delete</h2>
+    <mat-dialog-content>
+      Are you sure you want to delete this contact?
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="closeModal()">Cancel</button>
+      <button mat-flat-button color="warn" (click)="confirmDelete()">Delete</button>
+    </mat-dialog-actions>
+</ng-template>

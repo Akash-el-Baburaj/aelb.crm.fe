@@ -7,6 +7,7 @@ import { RouterLink } from '@angular/router';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
 import { isPlatformBrowser } from '@angular/common';
 import { Inject, PLATFORM_ID } from '@angular/core';
+import { UsersService } from '../../services/users.service';
 
 
 @Component({
@@ -28,11 +29,13 @@ export class HeaderComponent {
     constructor(
         private toggleService: ToggleService,
         public themeService: CustomizerSettingsService,
+        private userService: UsersService,
         @Inject(PLATFORM_ID) private platformId: Object
     ) {
-        if (isPlatformBrowser(this.platformId)) {
-            this.userDetails = JSON.parse(localStorage.getItem('profile')!);
-          }
+        // if (isPlatformBrowser(this.platformId)) {
+        //     const profile : any = localStorage.getItem('profile') || {};
+        //     this.userDetails = profile ? JSON.parse(profile) : {};
+        // }
         this.toggleService.isSidebarToggled$.subscribe(isSidebarToggled => {
             this.isSidebarToggled = isSidebarToggled;
         });
@@ -65,10 +68,22 @@ export class HeaderComponent {
     }
 
     ngOnInit() {
-        if (isPlatformBrowser(this.platformId)) {
-          this.userDetails = JSON.parse(localStorage.getItem('profile')!);
-          console.log('userDetails = ', this.userDetails)
+        if (isPlatformBrowser(this.platformId) && localStorage.getItem('token')) {
+            this.getUserProfile();
         }
+        // if (isPlatformBrowser(this.platformId)) {
+        //   this.userDetails = JSON.parse(localStorage.getItem('profile')!);
+        // }
+      }
+
+      getUserProfile() {
+        this.userService.getUserProfile().subscribe({
+            next: (res: any) => {
+                if (res.status === 'success') {
+                    this.userDetails = res.user;
+                }
+            }
+        })
       }
 
 }

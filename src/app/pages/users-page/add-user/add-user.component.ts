@@ -60,14 +60,14 @@ export class AddUserComponent implements OnInit {
       this.userService.getUserById(id).subscribe({
         next: (res: any) => {
           if (res.status === 'success') {
-            this.patchUserForm(res.data);
+            this.patchUserForm(res.user);
           }
         }
       });
     }
 
     patchUserForm(user: any) {
-      this.base64Image = user.image;
+      this.base64Image = user.image || '';
     
       this.userForm.patchValue({
         userName: user.name,
@@ -81,14 +81,23 @@ export class AddUserComponent implements OnInit {
       });
     
       const localProfile = JSON.parse(localStorage.getItem('profile') || '{}');
-      if (localProfile.role !== 'superadmin') {
-        // Disable all except password fields
-        this.userForm.get('userName')?.disable();
-        this.userForm.get('email')?.disable();
-        this.userForm.get('phone')?.disable();
-        this.userForm.get('designation')?.disable();
-        this.userForm.get('role')?.disable();
-        this.userForm.get('status')?.disable();
+      const isSuperAdmin = localProfile.role === 'superadmin';
+      const isAdmin = localProfile.role === 'admin';
+      const isUser = localProfile.role === 'user';
+      const isEditingSelf = String(localProfile.id) === String(user.id);
+      const isEditingUserRole = user.role === 'user';
+
+      // Enable/disable password fields based on role and context
+      if (
+        isSuperAdmin ||
+        (isAdmin && (isEditingSelf || isEditingUserRole)) ||
+        (isUser && isEditingSelf)
+      ) {
+        this.userForm.get('password')?.enable();
+        this.userForm.get('confirmPassword')?.enable();
+      } else {
+        this.userForm.get('password')?.disable();
+        this.userForm.get('confirmPassword')?.disable();
       }
     }
     
@@ -118,12 +127,10 @@ export class AddUserComponent implements OnInit {
 
     onFileSelected(fileList: any) {
         const file = fileList[0];
-        console.log('file = ', file)
         if (file) {
         const reader = new FileReader();
         reader.onload = () => {
             this.base64Image = reader.result as string;
-            console.log('imag rui',this.base64Image)
 
         };
         reader.readAsDataURL(file);
@@ -138,28 +145,32 @@ export class AddUserComponent implements OnInit {
      onSubmit() {
         if (this.userForm.valid) {
           const formValue = this.userForm.value;
-          // console.log('Form submitted!', {
-          //   ...formValue,
-          //   password: formValue.password,
-          //   image: this.base64Image
-          // });
-          const payload: any = {
-            name: formValue.userName,
-            email: formValue.email,
-            password: formValue.password,
-            phone: formValue.phone,
-            designation: formValue.designation,
-            role: formValue.role,
-            status: formValue.status,
-            image: this.base64Image,
-            teams: [],
-            report: {},
-            tasks: []
-          };
           const id = this.route.snapshot.queryParamMap.get('id');
+          let payload: any;
           if (id) {
-            this.updateUser(+id,payload);
+            // Update: include status
+            payload = {
+              name: formValue.userName,
+              email: formValue.email,
+              phone: formValue.phone,
+              designation: formValue.designation,
+              role: formValue.role,
+              status: formValue.status,
+              image: this.base64Image,
+              password: formValue.password
+            };
+            this.updateUser(+id, payload);
           } else {
+            // Create: do not include status
+            payload = {
+              name: formValue.userName,
+              email: formValue.email,
+              phone: formValue.phone,
+              designation: formValue.designation,
+              role: formValue.role,
+              image: this.base64Image,
+              password: formValue.password
+            };
             this.saveUser(payload);
           }
         } else {

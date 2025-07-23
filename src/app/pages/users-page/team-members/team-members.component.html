@@ -26,17 +26,18 @@
 >
     <mat-card-header>
         <mat-card-title>
-            <a mat-button class="add-new-btn" routerLink="/users/add-user">
+            <!-- <a mat-button class="add-new-btn" routerLink="/users/add-user">
                 + Add New Member
-            </a>
+            </a> -->
+            {{team.name}}
         </mat-card-title>
         <mat-card-subtitle>
-            <form class="search-box position-relative">
+            <!-- <form class="search-box position-relative">
                 <i class="material-symbols-outlined">
                     search
                 </i>
                 <input type="text" class="input-search d-block w-100 border-none outline-0" placeholder="Search member...">
-            </form>
+            </form> -->
         </mat-card-subtitle>
     </mat-card-header>
 </mat-card>
@@ -48,7 +49,7 @@
             [class.rtl-enabled]="themeService.isRTLEnabled()"
         >
             <mat-card-header>
-                <mat-card-subtitle>
+                <!-- <mat-card-subtitle>
                     <button type="button" mat-button class="card-header-menu-btn p-0" [matMenuTriggerFor]="cardHeaderMenu">
                         <i class="material-symbols-outlined">
                             more_horiz
@@ -62,15 +63,15 @@
                             Delete
                         </button>
                     </mat-menu>
-                </mat-card-subtitle>
+                </mat-card-subtitle> -->
             </mat-card-header>
             <mat-card-content>
                 <div class="d-flex align-items-center">
                     <div class="icon position-relative text-center rounded-circle">
-                        <img [src]="content.memberImg" class="rounded-circle" alt="member-image">
+                        <img [src]="content?.image ? content.image : 'images/users/user1.jpg'" onerror="this.src='images/users/user1.jpg'" class="rounded-circle" alt="member-image">
                     </div>
                     <h5 class="mb-0">
-                        {{content.memberName}}
+                        {{content.name}}
                         <span class="d-block text-body fw-normal">
                             {{content.designation}}
                         </span>
@@ -81,25 +82,39 @@
                         <span class="text-body">
                             Joined Date:
                         </span> 
-                        {{content.joinedDate}}
+                        {{content.createdDate | date: 'dd MMM yyyy'}}
+                    </li>
+                    <li>
+                        <span class="text-body">
+                            Contact Email:
+                        </span> 
+                        {{content.email}}
                     </li>
                     <li>
                         <span class="text-body">
                             Contact Phone:
                         </span> 
-                        {{content.contactPhone}}
+                        {{content.phone}}
                     </li>
-                    <li>
-                        <span class="text-body">
-                            Location:
-                        </span> 
-                        {{content.location}}
-                    </li>
+                    <!-- <li>
+                        <span class="daxa-badge active d-inline-block" *ngIf="content.id === team.teamLeaderId">
+                            Leader
+                        </span>
+                        <span class="daxa-badge deactive d-inline-block" *ngIf="content.id !== team.teamLeaderId">
+                            Member
+                        </span>
+                    </li> -->
                 </ul>
                 <div class="socials-link">
-                    <a href="{{item.link}}" target="_blank" [class]="item.class" *ngFor="let item of content.socialsLink;">
+                    <!-- <a href="{{item.link}}" target="_blank" [class]="item.class" *ngFor="let item of content.socialsLink;">
                         <i class="{{item.icon}}"></i>
-                    </a>
+                    </a> -->
+                    <span class="daxa-badge active d-inline-block" *ngIf="content.id === team.teamLeaderId">
+                        Leader
+                    </span>
+                    <span class="daxa-badge pending d-inline-block" *ngIf="content.id !== team.teamLeaderId">
+                        Member
+                    </span>
                 </div>
             </mat-card-content>
         </mat-card>

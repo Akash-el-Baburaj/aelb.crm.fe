@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
@@ -10,6 +10,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CustomizerSettingsService } from '../../../customizer-settings/customizer-settings.service';
+import { CustomerService } from '../../../services/customer.service';
 
 @Component({
     selector: 'app-c-customers',
@@ -17,11 +18,13 @@ import { CustomizerSettingsService } from '../../../customizer-settings/customiz
     templateUrl: './c-customers.component.html',
     styleUrl: './c-customers.component.scss'
 })
-export class CCustomersComponent {
+export class CCustomersComponent implements OnInit {
 
     displayedColumns: string[] = ['select', 'customerID', 'customer', 'email', 'phone', 'lastLogin', 'received', 'due', 'status', 'action'];
     dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
     selection = new SelectionModel<PeriodicElement>(true, []);
+
+    customers: any[] = [];
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -60,8 +63,26 @@ export class CCustomersComponent {
     }
 
     constructor(
-        public themeService: CustomizerSettingsService
-    ) {}
+        public themeService: CustomizerSettingsService,
+        private customerService: CustomerService,
+        
+    ) {
+        this.getCustomers();
+    }
+
+    ngOnInit(): void {
+        this.getCustomers();
+    }
+
+    getCustomers() {
+        this.customerService.getAllCustomers().subscribe({
+            next: (res: any) => {
+                if (res.status = 'success') {
+                    this.customers = res.customers
+                }
+            }
+        })
+    }
 
 }
 
