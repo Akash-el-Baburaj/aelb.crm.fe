@@ -643,3 +643,38 @@
 
 /* Min width 1600px */
 @media only screen and (min-width: 1600px) {}
+
+.small-form-field {
+    width: 100%;
+}
+
+.timestamp {
+    font-size: 12px;
+    margin-top: 5px;
+    color: #555;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.col-md-6 {
+    padding: 5px;
+}
+
+.file-link {
+    display: inline-block;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #fff; /* Matches Angular Material primary color */
+    text-decoration: none; /* Removes underline for cleaner look */
+}
+
+.file-link:hover {
+    color: #f1f1f1;
+    text-decoration: none; /* Adds underline on hover for interactivity */
+}
+

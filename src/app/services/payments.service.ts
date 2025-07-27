@@ -64,7 +64,7 @@ export class PaymentsService {
     return this.http.put(`${this.apiUrl}/payments/${id}/emi/${emiId}/pay`, payload);
   }
 
-  generateInvoice(id: string | number, payload: GenerateInvoicePayload): Observable<any> {
+  generateInvoice(id: string | number, payload: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/payments/${id}/generate-invoice`, payload);
   }
 

@@ -201,6 +201,12 @@
                                         edit
                                     </i>
                                 </a> -->
+                                <button type="button" mat-button matTooltip="Generate Invoice" matTooltipPosition="above"
+                                    [routerLink]="['/invoice']" [queryParams]="{id: element.contactID}">
+                                    <i class="material-symbols-outlined">
+                                        {{element.action.invoice}}
+                                    </i>
+                                </button>
                                 <button type="button" mat-button matTooltip="Share Link" matTooltipPosition="above" class="link-share-btn" (click)="toggleClass()">
                                     <i class="material-symbols-outlined">
                                         link
@@ -287,6 +293,44 @@
         </mat-card>
     </div>
 </div>
+
+<ng-template #generateInvoiceDialog2 let-data>
+    <h2 mat-dialog-title>Generate Invoice</h2>
+    <mat-dialog-content>
+      <div *ngFor="let item of invoiceItems; let i = index">
+        <h4>Product {{ i + 1 }}: {{ item.ProductOrService.name }}</h4>
+  
+        <mat-form-field appearance="fill" style="width: 100%;">
+          <mat-label>Invoice Amount</mat-label>
+          <input matInput type="number" [(ngModel)]="item.invoiceAmount">
+        </mat-form-field>
+  
+        <mat-form-field appearance="fill" style="width: 100%;">
+          <mat-label>Discount</mat-label>
+          <input matInput type="number" [(ngModel)]="item.invoiceDiscount">
+        </mat-form-field>
+  
+        <mat-form-field appearance="fill" style="width: 100%;">
+          <mat-label>Reduction</mat-label>
+          <input matInput type="number" [(ngModel)]="item.invoiceReduction">
+        </mat-form-field>
+  
+        <div>
+          <strong>Final Amount:
+            {{ item.invoiceAmount - (item.invoiceDiscount || 0) - (item.invoiceReduction || 0) | number:'1.2-2' }}
+          </strong>
+        </div>
+  
+        <mat-divider class="my-2"></mat-divider>
+      </div>
+    </mat-dialog-content>
+  
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="closeModal()">Cancel</button>
+      <button mat-flat-button color="primary" (click)="submitGenerateInvoice()">Generate Invoice</button>
+    </mat-dialog-actions>
+  </ng-template>
+  
 
 <!-- Inline Delete Confirmation Dialog -->
 <ng-template #deleteDialog let-dialogRef>

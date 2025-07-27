@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { StatsComponent } from './stats/stats.component';
 import { MostLeadsComponent } from './most-leads/most-leads.component';
 import { CountryStatsComponent } from './country-stats/country-stats.component';
@@ -10,6 +10,7 @@ import { ToDoListComponent } from './to-do-list/to-do-list.component';
 import { ClientPaymentStatusComponent } from './client-payment-status/client-payment-status.component';
 import { TotalLeadsComponent } from './total-leads/total-leads.component';
 import { SalesOverviewComponent } from './sales-overview/sales-overview.component';
+import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
     selector: 'app-crm',
@@ -17,4 +18,24 @@ import { SalesOverviewComponent } from './sales-overview/sales-overview.componen
     templateUrl: './crm.component.html',
     styleUrl: './crm.component.scss'
 })
-export class CrmComponent {}
+export class CrmComponent implements OnInit {
+
+    constructor(
+        private dashboardService: DashboardService,
+    ) {}
+
+    ngOnInit(): void {
+        this.getDashboardItems()
+    }
+
+    getDashboardItems() {
+        this.dashboardService.getDashBoardItem().subscribe({
+            next: (res: any) => {
+                if (res.status === 'success') {
+
+                }
+            }
+        })
+    }
+
+}

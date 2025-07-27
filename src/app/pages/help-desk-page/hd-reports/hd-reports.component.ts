@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
@@ -12,6 +12,7 @@ import { AveResolutionTimeComponent } from '../../../dashboard/help-desk/ave-res
 import { ComplaintsComponent } from './complaints/complaints.component';
 import { CustomizerSettingsService } from '../../../customizer-settings/customizer-settings.service';
 import { PmProjectsListComponent } from './pm-projects-list/pm-projects-list.component';
+import { ReportService } from '../../../services/report.service';
 
 @Component({
     selector: 'app-hd-reports',
@@ -19,7 +20,7 @@ import { PmProjectsListComponent } from './pm-projects-list/pm-projects-list.com
     templateUrl: './hd-reports.component.html',
     styleUrl: './hd-reports.component.scss'
 })
-export class HdReportsComponent {
+export class HdReportsComponent implements OnInit {
 
     displayedColumns: string[] = ['agentID', 'agent', 'totalTickets', 'openTickets', 'resolvedTickets', 'aveResolutionTime', 'satisfactionRate', 'action'];
     dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
@@ -31,8 +32,30 @@ export class HdReportsComponent {
     }
 
     constructor(
-        public themeService: CustomizerSettingsService
+        public themeService: CustomizerSettingsService,
+        private reportService: ReportService,
     ) {}
+
+    ngOnInit(): void {
+        this.getTaskReport();
+        this.getLeadConversionReport();        
+    }
+
+    getTaskReport(){
+        this.reportService.getTaskReport().subscribe({
+            next: (res: any) => {
+                if (res.status === 'success') {}
+            }
+        })
+    }
+
+    getLeadConversionReport(){
+        this.reportService.getLeadConversionReport().subscribe({
+            next: (res: any) => {
+                if (res.status === 'success') {}
+            }
+        })
+    }
 
 }
 

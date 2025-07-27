@@ -152,7 +152,7 @@
                   <span style="display: flex; align-items: center; justify-content: space-evenly;">
                     <span>{{element.nextEMIAmount}} </span>
                   <button type="button" mat-button matTooltip="Installment Pay" *ngIf="element.nextEMIAmount" matTooltipPosition="above"
-                            style="font-size: 8pxl !important;
+                            style="font-size: 8px !important;
                                   padding: 0;
                                   width: auto;
                                   height: auto;
@@ -185,12 +185,12 @@
                         {{element.action.view}}
                       </i>
                     </a>
-                    <button type="button" mat-button matTooltip="Generate Invoice" matTooltipPosition="above"
+                    <!-- <button type="button" mat-button matTooltip="Generate Invoice" matTooltipPosition="above"
                             (click)="openGenerateInvoiceDialog(element)">
                       <i class="material-symbols-outlined">
                         {{element.action.invoice}}
                       </i>
-                    </button>
+                    </button> -->
                     <button type="button" mat-button matTooltip="Print" matTooltipPosition="above">
                       <i class="material-symbols-outlined">
                         {{element.action.print}}

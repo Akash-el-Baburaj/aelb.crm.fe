@@ -12,16 +12,37 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomerService } from '../../services/customer.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
+import { PaymentsService } from '../../services/payments.service';
+import { MatDividerModule } from '@angular/material/divider';
+import { ProductOrServiceService } from '../../services/product-or-service.service';
 
 @Component({
     selector: 'app-contacts',
-    imports: [CommonModule, MatCardModule, MatMenuModule, MatButtonModule, RouterLink, MatTableModule, MatPaginatorModule, NgIf, MatCheckboxModule, MatTooltipModule, MatFormFieldModule, MatIconModule, ReactiveFormsModule, MatInputModule, MatDialogModule],
+    imports: [
+        CommonModule, 
+        MatCardModule, 
+        MatMenuModule, 
+        MatButtonModule, 
+        RouterLink, 
+        MatTableModule, 
+        MatPaginatorModule, 
+        NgIf, 
+        MatCheckboxModule, 
+        MatTooltipModule, 
+        MatFormFieldModule, 
+        MatIconModule, 
+        ReactiveFormsModule, 
+        FormsModule,
+        MatInputModule, 
+        MatDialogModule,
+        MatDividerModule
+    ],
     templateUrl: './contacts.component.html',
     styleUrl: './contacts.component.scss'
 })
@@ -32,8 +53,20 @@ export class ContactsComponent implements OnInit {
     selection = new SelectionModel<CustomerElement>(true, []);
     customers: any[] = [];
 
+    selectedPaymentId: string | number | null = null;
+  
+    invoiceAmount: number = 0;
+    invoiceDiscount: number = 0;
+    invoiceReduction: number = 0;
+    selectedPaymentEMI: any;
+
+    invoiceItems: any[] = [];
+    selectedCustomerId!: number;
+
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild('deleteDialog') deleteDialog!: TemplateRef<any>;
+    @ViewChild('generateInvoiceDialog2') generateInvoiceDialog!: TemplateRef<any>;
+
     customerId: any;
 
     ngAfterViewInit() {
@@ -75,7 +108,9 @@ export class ContactsComponent implements OnInit {
         private snackBar: MatSnackBar,
         private customerService: CustomerService,
         private dialog: MatDialog,
-        private toast: ToastrService
+        private toast: ToastrService,
+        private paymentService: PaymentsService,
+        private productService: ProductOrServiceService
     ) {}
 
     ngOnInit(): void {
@@ -115,6 +150,7 @@ export class ContactsComponent implements OnInit {
             leadSource: customer.leadSource || 'N/A',
             paidAmount: customer.paidAmount || 0,
             balanceAmount: customer.balanceAmount || 0,
+            productOrServices: customer.ProductOrService,
             status: {
                 active: customer.status === 'active' ? 'Active' : null,
                 deactive: customer.status === 'inactive' ? 'Inactive' : null
@@ -122,7 +158,8 @@ export class ContactsComponent implements OnInit {
             action: {
                 edit: 'edit',
                 link: 'link',
-                delete: 'delete'
+                delete: 'delete',
+                invoice: 'payment'
             }
         }));
         
@@ -171,6 +208,78 @@ export class ContactsComponent implements OnInit {
     closeModal() {
         this.dialog.closeAll();
     }
+
+    openGenerateInvoiceDialog(element: any): void {
+        this.selectedCustomerId = element.id;
+        console.log('element => ', element)
+      
+        // Handle multiple assigned products/services
+        this.invoiceItems = [];
+      
+        const services = element.productOrServices || []; // <-- This should be an array
+        console.log('services =>> ',services)
+        if (services.length > 0) {
+          this.invoiceItems = services.map((service: any) => ({
+            productOrServiceId: service.id,
+            ProductOrService: service,
+            invoiceAmount: service.amount || 0,
+            invoiceDiscount: service.discount || 0,
+            invoiceReduction: 0
+          }));
+        } else {
+          this.toast.warning('No products/services assigned to this customer.', 'Warning!');
+          return;
+        }
+      
+        this.dialog.open(this.generateInvoiceDialog, { width: '500px' });
+      }
+      
+
+    // openGenerateInvoiceDialog(element: any): void {
+    //     this.selectedCustomerId = element.id;
+      
+    //     // Build invoiceItems from ProductOrService list
+    //     this.invoiceItems = [];
+    //     if (element.ProductOrServiceId && element.ProductOrService) {
+    //       this.invoiceItems.push({
+    //         productOrServiceId: element.ProductOrServiceId,
+    //         ProductOrService: element.ProductOrService,
+    //         invoiceAmount: element.ProductOrService.amount || 0,
+    //         invoiceDiscount: element.ProductOrService.discount || 0,
+    //         invoiceReduction: 0
+    //       });
+    //     }
+      
+    //     this.dialog.open(this.generateInvoiceDialog, { width: '400px' });
+    //   }
+      
+    
+      submitGenerateInvoice(): void {
+        if (!this.selectedCustomerId || this.invoiceItems.length === 0) return;
+      
+        const payload = {
+          items: this.invoiceItems.map(item => ({
+            productOrServiceId: item.productOrServiceId,
+            invoiceAmount: item.invoiceAmount,
+            invoiceDiscount: item.invoiceDiscount,
+            invoiceReduction: item.invoiceReduction
+          }))
+        };
+      
+        this.paymentService.generateInvoice(this.selectedCustomerId, payload).subscribe({
+          next: (res: any) => {
+            if (res.status === 'success') {
+              this.toast.success(res.message, 'Success!');
+              this.getCustomers();
+              this.closeModal();
+            }
+          },
+          error: (err) => {
+            this.toast.error(err.error.message, 'Error!');
+          }
+        });
+      }
+      
 
 }
 

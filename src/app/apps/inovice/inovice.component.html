@@ -1,0 +1,324 @@
+<!-- Breadcrumb -->
+<div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
+    <h5 class="mb-0">
+        Invoice
+    </h5>
+    <ol class="breadcrumb list-unstyled mt-0 mb-0 pl-0">
+        <li class="breadcrumb-item position-relative">
+            <a routerLink="/" class="d-inline-block position-relative">
+                <i class="ri-home-8-line"></i>
+                Dashboard
+            </a>
+        </li>
+        <li class="breadcrumb-item position-relative">
+            CRM
+        </li>
+        <li class="breadcrumb-item position-relative">
+            Students List
+        </li>
+        <li class="breadcrumb-item position-relative">
+            Student Profile
+        </li>
+        <li class="breadcrumb-item position-relative">
+            Invoice
+        </li>
+    </ol>
+</div>
+
+<mat-card
+    class="daxa-card to-do-list-card mb-25 border-radius bg-white border-none d-block"
+    [class.rtl-enabled]="themeService.isRTLEnabled()"
+>
+    <mat-card-header> &nbsp; </mat-card-header>
+    <mat-card-content>
+        <div class="content">
+            <div class="container">
+                <!-- Invoices -->
+                <div class="row justify-content-center">
+                    <div class="col-md-9">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="border-bottom mb-4">
+                                    <div class="row justify-content-between align-items-center flex-wrap row-gap-4">
+                                        <div class="col-md-6">
+                                            <div class="mb-2 invoice-logo-white">
+                                                <img src="images/logo.png" class="img-fluid" alt="logo" width="55">
+                                            </div>
+                                            <p class="fs-12">AelB Tech Solutipns</p>
+                                        </div>
+                                        <div class="col-md-6 d-flex justify-content-end">
+                                            <div class=" text-end mb-3">
+                                                <h6 class="text-default mb-1">Invoice No <span class="text-primary fw-medium">#INV000{{customer?.id}}</span></h6>
+                                                <p class="fs-14 mb-1 fw-medium">Created Date : <span class="text-gray-9">{{today | date: 'MMM dd, yyyy'}}</span> </p>
+                                                <mat-form-field appearance="fill" class="w-100">
+                                                    <mat-label>Due Date</mat-label>
+                                                    <input
+                                                      matInput
+                                                      [matDatepicker]="picker"
+                                                      [(ngModel)]="dueDate"
+                                                      (dateChange)="onDateChange($event)"
+                                                      placeholder="Select Due Date"
+                                                      class="fs-14 fw-medium text-gray-9"
+                                                    />
+                                                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                                    <mat-datepicker #picker></mat-datepicker>
+                                                  </mat-form-field>
+                                                <!-- <p class="fs-14 fw-medium">
+                                                    Due Date :
+                                                    <span
+                                                      class="text-gray-9 cursor-pointer"
+                                                      (click)="openDatePicker()"
+                                                      [innerHTML]="dueDate | date: 'MMM dd, yyyy'"
+                                                    ></span>
+                                                  </p>
+                                                  <input
+                                                    matInput
+                                                    [matDatepicker]="picker"
+                                                    [(ngModel)]="dueDate"
+                                                    (dateChange)="onDateChange($event)"
+                                                    style="display: none;"
+                                                    #dateInput
+                                                  />
+                                                  <mat-datepicker #picker></mat-datepicker> -->
+                                                <!-- <p class="fs-14 fw-medium">Due Date : <span class="text-gray-9">Sep 30, 2023</span> </p> -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="border-bottom mb-4">
+                                    <div class="row align-items-center g-4">
+                                        <div class="col-md-5 d-flex justify-content-start">
+                                            <h6 class="mb-3 fw-semibold fs-14">From <br></h6><br />
+                                            <div>
+                                                <h6 class="mb-1">Admin</h6>
+                                                <p class="fs-14 mb-1">Aelb Tech Solutions</p>
+                                                <p class="fs-14 mb-1">Email : <span class="text-gray-9">admin&#64;aelb.com</span></p>
+                                                <p class="fs-14">Phone : <span class="text-gray-9">+91 953 940 7939</span></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 d-flex justify-content-center">
+                                            <h6 class="mb-3 fw-semibold fs-14">To</h6><br>
+                                            <div>
+                                                <h6 class="mb-1">{{customer.name}}</h6>
+                                                <p class="fs-14 mb-1">{{customer.company}}</p>
+                                                <p class="fs-14 mb-1">Email : <span class="text-gray-9">{{customer.email}}</span></p>
+                                                <p class="fs-14">Phone : <span class="text-gray-9">{{customer.phone}}</span></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 d-flex justify-content-end">
+                                            <div class="mb-3">
+                                                <h6 class="mb-1 fs-14 fw-medium">Payment Status </h6>
+                                                <span class="badge badge-danger align-items-center fs-10 mb-4"><i class="ti ti-point-filled "></i>Due in 10 Days</span>
+                                                <div>
+                                                    <!-- <img src="assets/img/invoice/qr.svg" class="img-fluid" alt="QR"> -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="fw-medium mb-3">Invoice For : <span class="text-dark fw-medium">Course 1</span></p>
+                                    <div class="to-do-list-table">
+                                        <div class="table-responsive">
+                                            <table mat-table [dataSource]="dataSource">
+                                                
+                                                <!-- Course ID Column -->
+                                                <ng-container matColumnDef="courseID">
+                                                    <th mat-header-cell *matHeaderCellDef>
+                                                        Course ID
+                                                    </th>
+                                                    <td mat-cell *matCellDef="let element">
+                                                        {{element.id}}
+                                                    </td>
+                                                </ng-container>
+                            
+                                                <!-- Course Name Column -->
+                                                <ng-container matColumnDef="courseName">
+                                                    <th mat-header-cell *matHeaderCellDef>
+                                                        Course Name
+                                                    </th>
+                                                    <td mat-cell *matCellDef="let element">
+                                                        {{element.productName}}
+                                                    </td>
+                                                </ng-container>
+                            
+                                                <!-- Duration To Column -->
+                                                <!-- <ng-container matColumnDef="description">
+                                                    <th mat-header-cell *matHeaderCellDef>
+                                                        Description
+                                                    </th>
+                                                    <td mat-cell *matCellDef="let element" class="text-black">
+                                                        {{element.description}}
+                                                    </td>
+                                                </ng-container> -->
+                            
+                                                <!-- Joined Date Column -->
+                                                <ng-container matColumnDef="price">
+                                                    <th mat-header-cell *matHeaderCellDef>
+                                                        Price
+                                                    </th>
+                                                    <td mat-cell *matCellDef="let element">
+                                                        &#8377;{{element.amount}}
+                                                        <a mat-button matTooltip="Generate Invoice" matTooltipPosition="above"
+                                                        style="
+                                                               padding: 0;
+                                                               width: auto;
+                                                               height: auto;
+                                                               line-height: 1;
+                                                               color: #0f79f3;
+                                                               min-width: auto;
+                                                               border-radius: 0;" 
+                                                            (click)="openGenerateInvoiceDialog(element)">
+                                                            <i class="material-symbols-outlined" style="font-size: 14px !important;">
+                                                                payment
+                                                            </i>
+                                                        </a>
+                                                    </td>
+                                                </ng-container>    
+
+
+                                                <ng-container matColumnDef="invoiceAmount">
+                                                    <th mat-header-cell *matHeaderCellDef>
+                                                        Invoice amount
+                                                    </th>
+                                                    <td mat-cell *matCellDef="let element">
+                                                        &#8377;{{element.invoiceAmount}}
+                                                    </td>
+                                                </ng-container>    
+                                                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                                                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                                                              
+                                            </table>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="row border-bottom mb-3">
+                                    <div class="col-md-7">
+                                        <div class="py-4">
+                                            <div class="mb-3">
+                                                <h6 class="fs-14 mb-1">Terms and Conditions</h6>
+                                                <p class="fs-12">Please pay within 15 days from the date of invoice, overdue interest &#64; 14% will be charged on delayed payments.</p>
+                                            </div>
+                                            <div class="mb-3">
+                                                <h6 class="fs-14 mb-1">Notes</h6>
+                                                <p class="fs-12">Please quote invoice number when remitting funds.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="d-flex justify-content-between align-items-center border-bottom my-2 pe-3">
+                                            <p class="fs-14 fw-medium text-gray mb-0">Sub Total</p>
+                                            <p class="text-gray-9 fs-14 fw-medium mb-2">&#8377;{{subTotal}}</p>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center border-bottom my-2 pe-3">
+                                            <p class="fs-14 fw-medium text-gray mb-0">Discount (0%)</p>
+                                            <p class="text-gray-9 fs-14 fw-medium mb-2">&#8377;{{discountAmount}}</p>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2 pe-3">
+                                            <p class="fs-14 fw-medium text-gray mb-0">VAT (5%)</p>
+                                            <p class="text-gray-9 fs-14 fw-medium mb-2">&#8377;55</p>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2 pe-3">
+                                            <h6>Total Amount</h6>
+                                            <h6>&#8377;{{totalAmount}}</h6>
+                                        </div>
+                                        <p class="fs-12">
+                                            Amount in Words : Dollar Thousand Nine Fifty Five
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row justify-content-end align-items-end text-end border-bottom mb-3 me-2">
+                                    <div class="col-md-3">
+                                        <div class="text-end">
+                                            <!-- <img src="assets/img/invoice/sign.svg" class="img-fluid" alt="sign"> -->
+                                        </div>
+                                        <div class="text-end mb-3">
+                                            <h6 class="fs-14 fw-medium pe-3">Ted M. Davis</h6>
+                                            <p>Assistant Manager</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- <div class="text-center">
+                                    <div class="mb-3 invoice-logo-dark">
+                                        <img src="images/logo-main.png" class="img-fluid" alt="logo" width="250">
+                                    </div>
+                                    <p class="text-gray-9 fs-12 mb-1">Payment Made Via bank transfer / Cheque in the name of Thomas Lawler</p>
+                                    <div class="d-flex justify-content-center align-items-center flex-wrap gap-2">
+                                        <p class="fs-12 mb-0">Bank Name : <span class="text-gray-9">HDFC Bank</span></p>
+                                        <p class="fs-12 mb-0">Account Number : <span class="text-gray-9">45366287987</span></p>
+                                        <p class="fs-12">IFSC : <span class="text-gray-9">HDFC0018159</span></p>
+                                    </div>
+                                </div> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- /Invoices -->
+    
+            </div>
+        </div>
+    </mat-card-content>
+</mat-card>
+
+<mat-card
+    class="daxa-card to-do-list-card mb-25 border-radius bg-white border-none d-block"
+    [class.rtl-enabled]="themeService.isRTLEnabled()"
+>
+    <mat-card-header> &nbsp; </mat-card-header>
+    <mat-card-content>
+        <div style="display: flex; align-items: center; justify-content: center;">
+            <div class="btn-box text-center mt-4">
+                <button mat-button style="margin-right: 10px !important;">
+                    <i class="material-symbols-outlined" style="font-size: 16px !important;">
+                        print
+                    </i>
+                    Print
+                </button>
+                <button mat-button style="margin-right: 10px !important;">
+                    <i class="material-symbols-outlined" style="font-size: 16px !important;">
+                        download
+                    </i>
+                    Download
+                </button>
+                <button mat-button>
+                    <i class="material-symbols-outlined" style="font-size: 16px !important;">
+                        save
+                    </i>
+                    Save
+                </button>
+              </div>
+        </div>
+    </mat-card-content>
+</mat-card>
+<ng-template #generateInvoiceDialog let-data>
+    <h2 mat-dialog-title>Generate Invoice</h2>
+    <mat-dialog-content>
+      <div>
+        <mat-form-field appearance="fill" style="width: 100%;">
+          <mat-label>Invoice Amount</mat-label>
+          <input matInput type="number" [(ngModel)]="invoiceAmount">
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field appearance="fill" style="width: 100%;">
+          <mat-label>Discount</mat-label>
+          <input matInput type="number" [(ngModel)]="invoiceDiscount">
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field appearance="fill" style="width: 100%;">
+          <mat-label>Reduction</mat-label>
+          <input matInput type="number" [(ngModel)]="invoiceReduction">
+        </mat-form-field>
+      </div>
+      <div>
+        <strong>Final Amount: &#8377;{{ invoiceAmount - (invoiceDiscount || 0) - (invoiceReduction || 0) | number:'1.2-2' }}</strong>
+      </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="closeModal()">Cancel</button>
+      <button mat-flat-button color="primary" (click)="submitGenerateInvoice()">Generate Invoice</button>
+    </mat-dialog-actions>
+  </ng-template>

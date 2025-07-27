@@ -171,7 +171,7 @@
                     <ul class="list-unstyled mb-0 mt-0">
                         <ng-container *ngFor="let group of getGroupedLogs(taskDetails?.activityLogs)">
                             <li style="width:100%;text-align:center;margin:16px 0;">
-                                <span class="badge badge-secondary" style="font-size:14px;padding:6px 16px;border-radius:12px;">
+                                <span class="badge badge-secondary text-black" style="font-size:14px;padding:6px 16px;border-radius:12px;">
                                     {{ group.label }}
                                 </span>
                             </li>
@@ -230,23 +230,28 @@
                         </span>
                         <!-- <mat-form-field appearance="outline" class="small-form-field"> -->
                             <!-- <mat-label>Attachments</mat-label> -->
-                            <file-upload
-                                style="margin-top: 5px;"
-                                class="file-uploader"
-                                [(ngModel)]="selecteFile"
-                                (ngModelChange)="onFileSelected($event)"
-                                [multiple]="false">
-                            </file-upload>
+                            <button mat-button (click)="triggerFileInput()"
+                                    style="width: 100%; border: 2px solid; vertical-align: middle; display: flex; align-items: center;">
+                                <i class="material-symbols-outlined" style="font-size: 18px;">
+                                    file_upload
+                                </i>
+                                Upload
+                            </button>
+                            <input #fileInput type="file"
+                                   style="display: none"
+                                   (change)="onFileSelected($event)"
+                                   accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,image/*"
+                                   multiple>
                         <!-- </mat-form-field> -->
                     </li>
                     <li class="text-body">
                         <span class="d-block text-black fw-medium">
                             Attachments
                         </span>
-                        <div style=" max-height: 250px; min-height: fit-content; overflow-y: auto; overflow-x: hidden;">
-                            <ul *ngIf="taskFiles && taskFiles.length" style="padding-left:0;">
+                        <div style=" max-height: 250px; min-height: 200px; border: 2px solid; overflow-y: auto; overflow-x: hidden; padding: 5px 10px">
+                            <ul *ngIf="taskFiles && taskFiles.length else: noData" style="padding-left:0;">
                                 <li *ngFor="let file of taskFiles" style="display: flex; align-items: center; margin-bottom: 8px; list-style: none; display: flex; justify-content: space-between; border: 2px solid; padding: 1px 5px; border-radius: 5px;">
-                                    <a href="javascript:void(0)" >{{ file.filename || file.originalName }}</a>
+                                    <a class="file-link" href="javascript:void(0)" [matTooltip]="file.filename || file.originalName" style="max-width: 200px; ">{{ file.filename || file.originalName }}</a>
                                     <div>
                                         <button mat-icon-button color="warn" (click)="deleteFile(file.id)" style="margin-left: 8px;" [disabled]="deleteLoading.has(file.id)">
                                             <mat-progress-spinner *ngIf="deleteLoading?.has(file.id)" diameter="20" mode="indeterminate" color="warn" style="display:inline-block;" [strokeWidth]="3"></mat-progress-spinner>
@@ -262,28 +267,151 @@
                                         </button>
                                     </div>
                                 </li>
+                               
                             </ul>
+                            <ng-template #noData>
+                                <div class="badge badge-secondary text-black" style="width: 100%; height: 200px; display: flex; justify-content: center; align-items: center;">
+                                    No Attachments Found
+                                </div>
+                            </ng-template>
+                        </div>
+                    </li>
+
+                    <!-- <li class="text-body">
+                        <span class="d-block text-black fw-medium">
+                            Make an Appointment
+                        </span>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <mat-form-field appearance="fill" class="small-form-field">
+                                    <mat-label>Date</mat-label>
+                                    <input matInput [matDatepicker]="picker" [(ngModel)]="appointmentDate" (ngModelChange)="checkDateMatch()">
+                                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker></mat-datepicker>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-md-6">
+                                <mat-form-field appearance="fill">
+                                    <input matInput placeholder="Time" [format]="12" [ngxTimepicker]="fullTime">
+                                    <i class="material-symbols-outlined mr-15" matSuffix>
+                                        schedule
+                                    </i>
+                                    <ngx-material-timepicker #fullTime></ngx-material-timepicker>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-md-6">
+                                <button mat-flat-button color="primary" style="height: 45px; width: 100%;" [disabled]="!isToday2" (click)="checkIn()">
+                                    <i class="material-symbols-outlined" style="font-size: 11px;">
+                                        login
+                                    </i>
+                                    <span style="font-size: 12px; margin-left: 5px;">Check In</span>
+                                </button>
+                                <div *ngIf="checkInTime" class="timestamp">
+                                    Check-In: {{ checkInTime | date:'medium' }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <button mat-flat-button color="primary" style="height: 45px; width: 100%;" [disabled]="!isToday2 || !checkInTime" (click)="checkOut()">
+                                    <i class="material-symbols-outlined" style="font-size: 11px;">
+                                        logout
+                                    </i>
+                                    <span style="font-size: 12px; margin-left: 5px;">Check Out</span>
+                                </button>
+                                <div *ngIf="checkOutTime" class="timestamp">
+                                    Check-Out: {{ checkOutTime | date:'medium' }}
+                                    <br>
+                                    Duration: {{ duration }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
+                                    <mat-label>Details</mat-label>
+                                    <textarea matInput name="details-appointment" id="details-appointment" [(ngModel)]="appointmentDescription" cols="30" rows="1"></textarea>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </li> -->
+
+                    <li class="text-body">
+                        <span class="d-block text-black fw-medium">
+                            Make an Appointment
+                        </span>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <mat-form-field appearance="fill" class="small-form-field">
+                                    <mat-label>Date</mat-label>
+                                    <input matInput [matDatepicker]="picker" [(ngModel)]="appointmentDate" [matDatepickerFilter]="myFilter" [min]="minDate" (ngModelChange)="checkDateMatch()">
+                                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker></mat-datepicker>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-md-6">
+                                <mat-form-field appearance="fill" class="small-form-field">
+                                    <input matInput placeholder="Time" [format]="12" [ngxTimepicker]="fullTime" [(ngModel)]="appointmentTime" (ngModelChange)="checkDateMatch()">
+                                    <i class="material-symbols-outlined mr-15" matSuffix>
+                                        schedule
+                                    </i>
+                                    <ngx-material-timepicker #fullTime></ngx-material-timepicker>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-md-12">
+                                <button mat-flat-button color="primary" style="height: 50px; width: 100%; margin: 0;" (click)="saveAppointment()">
+                                    <i class="material-symbols-outlined" style="font-size: 11px;">
+                                        save
+                                    </i>
+                                    <span style="font-size: 12px; margin-left: 5px;">Save Appointment</span>
+                                </button>
+                            </div>
+                            <div class="col-md-6" *ngIf="isSaved">
+                                <button mat-flat-button color="primary" style="height: 45px; width: 100%;" [disabled]="!isToday" (click)="checkIn()">
+                                    <i class="material-symbols-outlined" style="font-size: 11px;">
+                                        login
+                                    </i>
+                                    <span style="font-size: 12px; margin-left: 5px;">Check In</span>
+                                </button>
+                                <div *ngIf="checkInTime" class="timestamp">
+                                    Check-In: {{ checkInTime | date:'medium' }}
+                                </div>
+                            </div>
+                            <div class="col-md-6" *ngIf="isSaved">
+                                <button mat-flat-button color="primary" style="height: 45px; width: 100%;" [disabled]="!isToday || !checkInTime" (click)="checkOut()">
+                                    <i class="material-symbols-outlined" style="font-size: 11px;">
+                                        logout
+                                    </i>
+                                    <span style="font-size: 12px; margin-left: 5px;">Check Out</span>
+                                </button>
+                                <div *ngIf="checkOutTime" class="timestamp">
+                                    Check-Out: {{ checkOutTime | date:'medium' }}
+                                    <br>
+                                    Duration: {{ duration }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
+                                    <mat-label>Details</mat-label>
+                                    <textarea matInput name="details-appointment" id="details-appointment" [(ngModel)]="appointmentDescription" cols="30" rows="1"></textarea>
+                                </mat-form-field>
+                            </div>
                         </div>
                     </li>
                     <li class="text-body">
-                        <span class="d-block text-black fw-medium">
-                           Make Call
+                        <!-- <span class="d-block text-black fw-medium">
+                            Make Call
                         </span>
                         <div class="row">
-                            
                             <div class="col-md-6">
                                 <mat-form-field appearance="fill" class="small-form-field">
                                     <mat-label>Status</mat-label>
-                                    <mat-select [(ngModel)]="callStatus">
-                                      <mat-option value="scheduled">Scheduled</mat-option>
-                                      <mat-option value="in_progress">In Progress</mat-option>
-                                      <mat-option value="completed">completed</mat-option>
-                                      <mat-option value="missed">Missed</mat-option>
-                                      <mat-option value="cancelled">Cancelled</mat-option>
-                                      <mat-option value="failed">Failed</mat-option>
-                                      <mat-option value="rescheduled">Rescheduled</mat-option>
-                                      <mat-option value="not_answered">Not Answered</mat-option>
-                                      <mat-option value="busy">Busy</mat-option>
+                                    <mat-select [(ngModel)]="callStatus" (ngModelChange)="onStatusChange2($event)">
+                                        <mat-option value="scheduled">Scheduled</mat-option>
+                                        <mat-option value="in_progress">In Progress</mat-option>
+                                        <mat-option value="completed">Completed</mat-option>
+                                        <mat-option value="missed">Missed</mat-option>
+                                        <mat-option value="cancelled">Cancelled</mat-option>
+                                        <mat-option value="failed">Failed</mat-option>
+                                        <mat-option value="rescheduled">Rescheduled</mat-option>
+                                        <mat-option value="not_answered">Not Answered</mat-option>
+                                        <mat-option value="busy">Busy</mat-option>
                                     </mat-select>
                                 </mat-form-field>
                             </div>
@@ -292,8 +420,42 @@
                                     <i class="material-symbols-outlined" style="font-size: 11px;">
                                         call
                                     </i>
-                                     <span style="font-size: 12px; margin-left: 5px ;">Call Update</span>
+                                    <span style="font-size: 12px; margin-left: 5px;">Call Update</span>
                                 </button>
+                            </div>
+                            <div class="col-12" *ngIf="callStatus === 'rescheduled'">
+                                <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
+                                    <mat-label>Reschedule Date</mat-label>
+                                    <input matInput [matDatepicker]="picker" [matDatepickerFilter]="myFilter" [(ngModel)]="rescheduleDate">
+                                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker></mat-datepicker>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-12" *ngIf="callStatus === 'scheduled'">
+                                <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
+                                    <mat-label>Schedule Date</mat-label>
+                                    <input matInput [matDatepicker]="picker" [matDatepickerFilter]="myFilter" [(ngModel)]="rescheduleDate">
+                                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker></mat-datepicker>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-12" *ngIf="callStatus === 'cancelled'">
+                                <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
+                                    <mat-label>Cancellation Reason</mat-label>
+                                    <textarea matInput [(ngModel)]="cancellationReason" rows="2"></textarea>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-12" *ngIf="callStatus === 'failed'">
+                                <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
+                                    <mat-label>Failure Reason</mat-label>
+                                    <textarea matInput [(ngModel)]="failureReason" rows="2"></textarea>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-12" *ngIf="callStatus === 'completed'">
+                                <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
+                                    <mat-label>Completion Notes</mat-label>
+                                    <textarea matInput [(ngModel)]="completionNotes" rows="2"></textarea>
+                                </mat-form-field>
                             </div>
                             <div class="col-12">
                                 <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
@@ -301,10 +463,10 @@
                                     <textarea matInput name="details-call" id="details-call" [(ngModel)]="callDescription" cols="30" rows="1"></textarea>
                                 </mat-form-field>
                             </div>
-                        </div>
-                    </li>                    
+                        </div> -->
+                    </li>
                     <li class="text-body">
-                        <span class="d-block text-black fw-medium">
+                        <!-- <span class="d-block text-black fw-medium">
                            Sent Mail
                         </span>
                         <div class="row">
@@ -340,11 +502,134 @@
                                     <textarea matInput name="details-call" id="details-call" cols="30" [(ngModel)]="emailDescriptiom" rows="1"></textarea>
                                 </mat-form-field>
                             </div>
-                        </div>
+                        </div> -->
                     </li>
                 </ul>
             </div>
         </mat-card-content>
+        </mat-card>
+    </div>
+    <div class="col-lg-12">
+        <mat-card
+            class="daxa-card agent-info-card mb-25 border-radius bg-white border-none d-block"
+            [class.component-dark-theme]="themeService.isDark()"
+            [class.rtl-enabled]="themeService.isRTLEnabled()"
+        >
+            <mat-card-content>
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        <span class="d-block text-black fw-medium">
+                            Make Call
+                        </span>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <mat-form-field appearance="fill" class="small-form-field">
+                                    <mat-label>Status</mat-label>
+                                    <mat-select [(ngModel)]="callStatus" (ngModelChange)="onStatusChange2($event)">
+                                        <mat-option value="scheduled">Scheduled</mat-option>
+                                        <mat-option value="in_progress">In Progress</mat-option>
+                                        <mat-option value="completed">Completed</mat-option>
+                                        <mat-option value="missed">Missed</mat-option>
+                                        <mat-option value="cancelled">Cancelled</mat-option>
+                                        <mat-option value="failed">Failed</mat-option>
+                                        <mat-option value="rescheduled">Rescheduled</mat-option>
+                                        <mat-option value="not_answered">Not Answered</mat-option>
+                                        <mat-option value="busy">Busy</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-md-6">
+                                <button mat-flat-button color="primary" style="height: 100%; width: 100%;" (click)="makeCallOrMail('call')">
+                                    <i class="material-symbols-outlined" style="font-size: 11px;">
+                                        call
+                                    </i>
+                                    <span style="font-size: 12px; margin-left: 5px;">Call Update</span>
+                                </button>
+                            </div>
+                            <div class="col-12" *ngIf="callStatus === 'rescheduled'">
+                                <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
+                                    <mat-label>Reschedule Date</mat-label>
+                                    <input matInput [matDatepicker]="picker" [matDatepickerFilter]="myFilter" [(ngModel)]="rescheduleDate">
+                                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker></mat-datepicker>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-12" *ngIf="callStatus === 'scheduled'">
+                                <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
+                                    <mat-label>Schedule Date</mat-label>
+                                    <input matInput [matDatepicker]="picker" [matDatepickerFilter]="myFilter" [(ngModel)]="rescheduleDate">
+                                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker></mat-datepicker>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-12" *ngIf="callStatus === 'cancelled'">
+                                <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
+                                    <mat-label>Cancellation Reason</mat-label>
+                                    <textarea matInput [(ngModel)]="cancellationReason" rows="2"></textarea>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-12" *ngIf="callStatus === 'failed'">
+                                <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
+                                    <mat-label>Failure Reason</mat-label>
+                                    <textarea matInput [(ngModel)]="failureReason" rows="2"></textarea>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-12" *ngIf="callStatus === 'completed'">
+                                <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
+                                    <mat-label>Completion Notes</mat-label>
+                                    <textarea matInput [(ngModel)]="completionNotes" rows="2"></textarea>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-12">
+                                <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
+                                    <mat-label>Details</mat-label>
+                                    <textarea matInput name="details-call" id="details-call" [(ngModel)]="callDescription" cols="30" rows="1"></textarea>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="d-block text-black fw-medium">
+                            Sent Mail
+                         </span>
+                         <div class="row">
+                             
+                             <div class="col-md-6">
+                                 <mat-form-field appearance="fill" class="small-form-field">
+                                     <mat-label>Status</mat-label>
+                                     <mat-select [(ngModel)]="emailStatus">
+                                       <mat-option value="draft">Draft</mat-option>
+                                       <mat-option value="queued">Queued</mat-option>
+                                       <mat-option value="sent">Sent</mat-option>
+                                       <mat-option value="delivered">Delivered</mat-option>
+                                       <mat-option value="bounced">Bounced</mat-option>
+                                       <mat-option value="opened">Opened</mat-option>
+                                       <mat-option value="clicked">Clicked</mat-option>
+                                       <mat-option value="failed">Failed</mat-option>
+                                       <mat-option value="replied">Replied</mat-option>
+                                       <mat-option value="spam_reported">Spam Reported</mat-option>
+                                     </mat-select>
+                                 </mat-form-field>
+                             </div>
+                             <div class="col-md-6">
+                                 <button mat-flat-button color="primary" style="height: 100%; width: 100%;" (click)="makeCallOrMail('mail')">
+                                     <i class="material-symbols-outlined" style="font-size: 11px;">
+                                         mail
+                                     </i>
+                                      <span style="font-size: 12px; margin-left: 5px ;">Mail Update</span>
+                                 </button>
+                             </div>
+                             <div class="col-12">
+                                 <mat-form-field appearance="fill" class="small-form-field" style="margin-top: 10px;">
+                                     <mat-label>Details</mat-label>
+                                     <textarea matInput name="details-call" id="details-call" cols="30" [(ngModel)]="emailDescriptiom" rows="1"></textarea>
+                                 </mat-form-field>
+                             </div>
+                         </div>
+                    </div>
+                </div>
+            </mat-card-content>
         </mat-card>
     </div>
 </div>

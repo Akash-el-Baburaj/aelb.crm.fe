@@ -17,11 +17,29 @@ import { ToastrService } from 'ngx-toastr';
 import { formatDate } from '@angular/common';
 import { FileUploadModule } from '@iplab/ngx-file-upload';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
     selector: 'app-hd-ticket-details',
-    imports: [CommonModule, MatSelectModule, MatCardModule, MatMenuModule, MatButtonModule, FileUploadModule, RouterLink, FormsModule, MatFormFieldModule, MatInputModule, AgentInfoComponent, MatProgressSpinnerModule],
+    imports: [CommonModule, 
+              MatSelectModule, 
+              MatCardModule, 
+              MatMenuModule, 
+              MatButtonModule, 
+              FileUploadModule, 
+              RouterLink, 
+              FormsModule, 
+              MatFormFieldModule, 
+              MatInputModule, 
+              MatTooltipModule,
+              AgentInfoComponent, 
+              MatProgressSpinnerModule,
+              MatDatepickerModule,
+              NgxMaterialTimepickerModule,
+              MatNativeDateModule],
     templateUrl: './hd-ticket-details.component.html',
     styleUrl: './hd-ticket-details.component.scss'
 })
@@ -38,6 +56,10 @@ export class HdTicketDetailsComponent implements OnInit {
 
     callStatus: any;
     callDescription: string = '';
+    rescheduleDate: Date | null = null;
+    cancellationReason: string = '';
+    failureReason: string = '';
+    completionNotes: string = '';
 
     emailStatus: any;
     emailDescriptiom: string = '';
@@ -48,6 +70,16 @@ export class HdTicketDetailsComponent implements OnInit {
     deleteLoading: Set<number> = new Set();
 
     selecteFile: any;
+
+    appointmentDate: Date | null = null;
+    appointmentTime: string = '';
+    appointmentDescription: string = '';
+    isToday2: boolean = false;
+    checkInTime: Date | null = null;
+    checkOutTime: Date | null = null;
+    duration: string = '';
+    isSaved: boolean = false;
+    minDate: Date | null = null;
 
     constructor(
         public themeService: CustomizerSettingsService,
@@ -62,7 +94,15 @@ export class HdTicketDetailsComponent implements OnInit {
                 this.getTaskById(this.taskId);
             }
         });
+        this.minDate = new Date();
+        this.minDate.setHours(0, 0, 0, 0);
     }
+
+    myFilter = (date: Date | null): boolean => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time for comparison
+        return date ? date.getTime() >= today.getTime() : false;
+    };
 
     loadFiles() {
         this.taskService.getFilesByTaskId(this.taskId).subscribe({
@@ -329,6 +369,14 @@ export class HdTicketDetailsComponent implements OnInit {
         }
     }
 
+    onStatusChange2(status: string) {
+        // Reset fields when status changes to avoid stale data
+        this.rescheduleDate = null;
+        this.cancellationReason = '';
+        this.failureReason = '';
+        this.completionNotes = '';
+    }
+
     deleteFile(id: string) {
         this.taskService.deleteFileById(id).subscribe({
             next: (res: any) => {
@@ -363,6 +411,49 @@ export class HdTicketDetailsComponent implements OnInit {
                 }
             }
         })
+    }
+
+    checkDateMatch() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time for comparison
+        const selectedDate = this.appointmentDate ? new Date(this.appointmentDate) : null;
+        if (selectedDate) {
+            selectedDate.setHours(0, 0, 0, 0);
+            this.isToday2 = today.getTime() === selectedDate.getTime();
+        } else {
+            this.isToday2 = false;
+        }
+    }
+
+    saveAppointment() {
+        if (this.appointmentDate && this.appointmentTime) {
+            this.isSaved = true;
+            console.log('Appointment Saved:', {
+                date: this.appointmentDate,
+                time: this.appointmentTime,
+                description: this.appointmentDescription
+            });
+        } else {
+            console.log('Please select both date and time before saving.');
+        }
+    }
+
+    checkIn() {
+        this.checkInTime = new Date();
+        console.log('Check-In Time:', this.checkInTime);
+    }
+
+    checkOut() {
+        if (this.checkInTime) {
+            this.checkOutTime = new Date();
+            const durationMs = this.checkOutTime.getTime() - this.checkInTime.getTime();
+            const hours = Math.floor(durationMs / (1000 * 60 * 60));
+            const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((durationMs % (1000 * 60)) / 1000);
+            this.duration = `${hours}h ${minutes}m ${seconds}s`;
+            console.log('Check-Out Time:', this.checkOutTime);
+            console.log('Duration:', this.duration);
+        }
     }
 
 }

@@ -57,7 +57,8 @@ import { CrmPageComponent } from './pages/crm-page/crm-page.component';
 import { StudentProfileComponent } from './pages/crm-page/student-profile/student-profile.component';
 import { HdCreateTicketComponent } from './pages/help-desk-page/hd-create-ticket/hd-create-ticket.component';
 import { EditContactComponent } from './apps/edit-contact/edit-contact.component';
-import { InoviceComponent } from './pages/crm-page/inovice/inovice.component';
+// import { InoviceComponent } from './pages/crm-page/inovice/inovice.component';
+import { InoviceComponent } from './apps/inovice/inovice.component';
 import { StudentRegFormComponent } from './pages/student-reg-form/student-reg-form.component';
 import { UsersComponent } from './pages/users/users.component';
 import { UsersPageComponent } from './pages/users-page/users-page.component';
@@ -107,10 +108,12 @@ export const routes: Routes = [
             {path: 'edit-product', component: EEditProductComponent},
         ]
     },
+    
 
     {path: 'to-do-list', component: ToDoListComponent},
     {path: 'calendar', component: CalendarComponent},
     {path: 'customer', component: ContactsComponent},
+    {path: 'invoice', component: InoviceComponent}, 
     {path: 'edit-customer', component: EditContactComponent},
     {path: 'chat', component: ChatComponent},
     {path: 'kanban-board', component: KanbanBoardComponent},
@@ -129,7 +132,7 @@ export const routes: Routes = [
             {path: 'profile', component: StudentProfileComponent},
             {path: 'deals', component: CDealsComponent},
             {path: 'create-deal', component: CCreateDealComponent},
-            {path: 'invoice', component: InoviceComponent}
+            // {path: 'invoice', component: InoviceComponent}
         ]
     },
     {path: 'student-registration', component: StudentRegFormComponent},
@@ -155,7 +158,6 @@ export const routes: Routes = [
             {path: 'create-ticket', component: HdCreateTicketComponent}
         ]
     },
-    
     {
         path: 'payments',
         component: InvoicesPageComponent,
